@@ -92,9 +92,14 @@ def test_subscribers_csv(client):
     assert r.mimetype == "text/csv" and b"fan@example.com" in r.data
 
 
-def test_unconfigured_admin_shows_setup_hint(tmp_path):
-    app = create_app({"TESTING": True, "DATABASE": str(tmp_path / "x.db"), "ADMIN_PASSWORD_HASH": None})
-    assert b"init-admin" in app.test_client().get("/admin/login").data
+def test_default_admin_login(tmp_path):
+    app = create_app({"TESTING": True, "DATABASE": str(tmp_path / "x.db")})
+    client = app.test_client()
+    client.get("/admin/login")
+    with client.session_transaction() as s:
+        token = s["csrf"]
+    r = client.post("/admin/login", data={"username": "admin", "password": "admin123", "csrf_token": token})
+    assert r.status_code == 302 and client.get("/admin/").status_code == 200
 
 
 def test_logout(client):

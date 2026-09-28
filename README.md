@@ -18,7 +18,8 @@ py -m venv .venv
 .\.venv\Scripts\flask --app ellastore seed-demo --count 90 # optional: fake orders for development
 ```
 
-Restart the server, then open http://127.0.0.1:5000/admin.
+Open http://127.0.0.1:5000/admin and sign in with the default login **admin / admin123**.
+To change it, run `init-admin` and restart the server.
 
 - **Dashboard**: revenue, average order value, awaiting-payment total, orders today, 14-day revenue chart, top games, recent orders
 - **Orders**: status tabs, search by order # / player ID / name, filter by game, pagination; detail page with status update

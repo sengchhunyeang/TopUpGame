@@ -4,6 +4,7 @@ import os
 from datetime import datetime, timedelta
 
 from flask import Flask
+from werkzeug.security import generate_password_hash
 
 from . import cli, content, db
 from .catalog import all_games
@@ -15,7 +16,8 @@ def create_app(test_config=None):
         SECRET_KEY=os.environ.get("SECRET_KEY", "dev"),
         DATABASE=os.environ.get("TOPUP_DB") or os.path.join(app.instance_path, "topup.db"),
         ADMIN_USERNAME="admin",
-        ADMIN_PASSWORD_HASH=None,  # set via `flask --app ellastore init-admin`
+        # Default login admin / admin123; override with `flask --app ellastore init-admin`
+        ADMIN_PASSWORD_HASH=generate_password_hash("admin123"),
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
         PERMANENT_SESSION_LIFETIME=timedelta(hours=8),

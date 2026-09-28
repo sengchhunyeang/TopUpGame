@@ -11,10 +11,6 @@ from werkzeug.security import check_password_hash
 from . import bp
 
 
-def is_configured():
-    return bool(current_app.config.get("ADMIN_PASSWORD_HASH"))
-
-
 def login_required(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
@@ -58,7 +54,7 @@ def login():
     if session.get("admin"):
         return redirect(url_for("admin.dashboard"))
 
-    if request.method == "POST" and is_configured():
+    if request.method == "POST":
         username = request.form.get("username", "")
         password = request.form.get("password", "")
         user_ok = hmac.compare_digest(username, current_app.config.get("ADMIN_USERNAME", "admin"))
@@ -70,7 +66,7 @@ def login():
             return redirect(_safe_next(request.args.get("next")))
         flash("Invalid username or password", "error")
 
-    return render_template("admin/login.html", configured=is_configured())
+    return render_template("admin/login.html")
 
 
 @bp.post("/logout")
