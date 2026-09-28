@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% from "admin/components.html" import stat_tile, panel, revenue_chart, game_bars, orders_table %}
+
+{% block title %}Dashboard{% endblock %}
+{% block heading %}Dashboard{% endblock %}
+{% block subheading %}<p class="text-[13px] text-gray-500">Revenue counts paid and delivered orders. Times in UTC.</p>{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-2 xl:grid-cols-4 gap-3">
+  {{ stat_tile("Revenue (all time)", stats.revenue | money, stats.paid_orders ~ " paid orders") }}
+  {{ stat_tile("Avg. order value", stats.avg_order | money) }}
+  {{ stat_tile("Awaiting payment", stats.pending, stats.pending_value | money ~ " outstanding") }}
+  {{ stat_tile("Orders today", stats.today, stats.orders ~ " all time · " ~ stats.subscribers ~ " subscribers") }}
+</div>
+
+<div class="mt-4 grid xl:grid-cols-5 gap-4 items-start">
+  {% call panel("Revenue, last 14 days", cls="xl:col-span-3") %}
+    <p class="-mt-1 mb-4 text-[13px] text-gray-500"><span class="font-bold text-ink tabular-nums">{{ daily_total | money }}</span> in the period</p>
+    {{ revenue_chart(daily) }}
+  {% endcall %}
+  {% call panel("Top games by revenue", "All games", url_for('admin.game_list'), cls="xl:col-span-2") %}
+    {{ game_bars(games, limit=6) }}
+  {% endcall %}
+</div>
+
+<div class="mt-4">
+  {% call panel("Recent orders", "All orders", url_for('admin.order_list')) %}
+    {{ orders_table(recent, compact=True) }}
+  {% endcall %}
+</div>
+{% endblock %}

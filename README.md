@@ -11,6 +11,24 @@ py -m venv .venv
 
 `FLASK_DEBUG=1` enables auto-reload, `PORT` changes the port, `TOPUP_DB` changes the SQLite file (default `instance/topup.db`).
 
+## Admin panel
+
+```powershell
+.\.venv\Scripts\flask --app ellastore init-admin          # set username/password (writes instance/config.py)
+.\.venv\Scripts\flask --app ellastore seed-demo --count 90 # optional: fake orders for development
+```
+
+Restart the server, then open http://127.0.0.1:5000/admin.
+
+- **Dashboard**: revenue, average order value, awaiting-payment total, orders today, 14-day revenue chart, top games, recent orders
+- **Orders**: status tabs, search by order # / player ID / name, filter by game, pagination; detail page with status update
+- **Games**: catalog with product counts, price ranges, orders and revenue per game
+- **Subscribers**: list and CSV export
+
+Revenue counts only `paid` and `delivered` orders. Order statuses: `pending_payment → paid → delivered`, or `cancelled` / `refunded`.
+Security: hashed password, 8-hour session cookie (HttpOnly, SameSite=Lax), CSRF token on every admin form, `next` redirects restricted to `/admin`.
+`instance/config.py` also holds a generated `SECRET_KEY`; in production set `SECRET_KEY` there or via the environment and put the app behind HTTPS.
+
 ## Structure
 
 ```
@@ -25,6 +43,11 @@ ellastore/
   routes/
     pages.py                 HTML pages:  /  and  /game/<id>
     api.py                   JSON API:    /api/...
+  admin/                     admin blueprint (/admin): auth.py (login, CSRF), views.py
+  services/reports.py        dashboard aggregates
+  cli.py                     init-admin, seed-demo
+  templates/admin/           admin layout, pages and components.html (stat_tile, panel,
+                             status_badge, orders_table, revenue_chart, game_bars, pagination)
   templates/
     base.html                layout
     partials/                header.html, footer.html

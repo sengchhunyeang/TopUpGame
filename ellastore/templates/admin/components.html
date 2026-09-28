@@ -1,0 +1,141 @@
+{#- Admin UI components. -#}
+
+{#- KPI tile: label, headline value, optional muted sub-line. -#}
+{% macro stat_tile(label, value, sub=None) -%}
+<div class="bg-white rounded-2xl border border-gray-100 p-4 card-shadow">
+  <p class="text-[12px] font-semibold text-gray-500">{{ label }}</p>
+  <p class="mt-1 text-2xl font-extrabold text-ink tabular-nums">{{ value }}</p>
+  {%- if sub %}<p class="mt-0.5 text-[12px] text-gray-500">{{ sub }}</p>{% endif %}
+</div>
+{%- endmacro %}
+
+{#- White panel with a title row; call-block content is the body. -#}
+{% macro panel(title, action_label=None, action_href=None, cls="") -%}
+<section class="bg-white rounded-2xl border border-gray-100 card-shadow {{ cls }}">
+  <div class="flex items-center justify-between gap-3 px-4 pt-4">
+    <h2 class="font-bold text-[15px] text-ink">{{ title }}</h2>
+    {%- if action_href %}<a href="{{ action_href }}" class="text-[12px] font-semibold text-brand hover:underline">{{ action_label }}</a>{% endif %}
+  </div>
+  <div class="p-4">{{ caller() }}</div>
+</section>
+{%- endmacro %}
+
+{#- Order status pill: dot + label (never colour alone). -#}
+{% macro status_badge(status) -%}
+{%- set styles = {
+  "pending_payment": "bg-amber-50 text-amber-800 border-amber-200",
+  "paid": "bg-blue-50 text-blue-800 border-blue-200",
+  "delivered": "bg-emerald-50 text-emerald-800 border-emerald-200",
+  "cancelled": "bg-gray-100 text-gray-700 border-gray-200",
+  "refunded": "bg-red-50 text-red-800 border-red-200",
+} -%}
+<span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-semibold {{ styles.get(status, styles.cancelled) }}">
+  <span class="w-1.5 h-1.5 rounded-full bg-current"></span>{{ status | humanize }}
+</span>
+{%- endmacro %}
+
+{#- Flashed messages. -#}
+{% macro flashes() -%}
+{%- for category, message in get_flashed_messages(with_categories=true) %}
+<div role="status" class="mb-4 rounded-xl border px-4 py-3 text-[13px] font-semibold {{ 'bg-red-50 border-red-200 text-red-800' if category == 'error' else 'bg-emerald-50 border-emerald-200 text-emerald-800' }}">{{ message }}</div>
+{%- endfor %}
+{%- endmacro %}
+
+{#- Orders table. compact=True drops secondary columns (dashboard). -#}
+{% macro orders_table(rows, compact=False) -%}
+{%- if rows %}
+<div class="overflow-x-auto -mx-4">
+  <table class="w-full text-[13px]">
+    <thead>
+      <tr class="text-left text-[11px] uppercase tracking-wide text-gray-500 border-b border-gray-100">
+        <th class="px-4 py-2 font-semibold">Order</th>
+        <th class="px-4 py-2 font-semibold">Game / item</th>
+        {%- if not compact %}<th class="px-4 py-2 font-semibold">Player</th>{% endif %}
+        <th class="px-4 py-2 font-semibold text-right">Total</th>
+        <th class="px-4 py-2 font-semibold">Status</th>
+        <th class="px-4 py-2 font-semibold">{{ 'Created' if not compact else 'When' }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%- for o in rows %}
+      <tr class="border-b border-gray-50 last:border-0 hover:bg-gray-50">
+        <td class="px-4 py-2.5"><a href="{{ url_for('admin.order_detail', order_id=o.id) }}" class="font-mono font-semibold text-brand hover:underline">#{{ o.id }}</a></td>
+        <td class="px-4 py-2.5"><span class="font-semibold text-ink">{{ o.game_id | game_name }}</span><span class="block text-[12px] text-gray-500">{{ o.item }}</span></td>
+        {%- if not compact %}<td class="px-4 py-2.5"><span class="font-mono">{{ o.player_id }}</span>{% if o.server %}<span class="text-gray-400"> ({{ o.server }})</span>{% endif %}<span class="block text-[12px] text-gray-500">{{ o.player_name }}</span></td>{% endif %}
+        <td class="px-4 py-2.5 text-right font-semibold tabular-nums">{{ o.total | money }}{% if o.coupon %}<span class="block text-[11px] font-normal text-gray-500">{{ o.coupon }}</span>{% endif %}</td>
+        <td class="px-4 py-2.5">{{ status_badge(o.status) }}</td>
+        <td class="px-4 py-2.5 whitespace-nowrap text-gray-500">{{ o.created_at | datetime }}</td>
+      </tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+</div>
+{%- else %}
+<p class="py-8 text-center text-[13px] text-gray-500">No orders yet.</p>
+{%- endif %}
+{%- endmacro %}
+
+{#- Daily revenue column chart (single series, brand blue). Hover/focus a column for details. -#}
+{% macro revenue_chart(daily) -%}
+{%- set top = daily | map(attribute="revenue") | max | nice_ceil -%}
+<div class="relative h-56 pl-12 pr-1" role="img" aria-label="Paid revenue per day for the last {{ daily | length }} days">
+  {%- for frac in (1, 0.5, 0) %}
+  <div class="absolute left-12 right-1 border-t {{ 'border-gray-300' if frac == 0 else 'border-gray-100' }}" style="bottom: {{ frac * 100 }}%">
+    <span class="absolute -left-12 -translate-y-1/2 w-10 text-right text-[11px] text-gray-400 tabular-nums">${{ '%d' | format(top * frac) }}</span>
+  </div>
+  {%- endfor %}
+  <div class="absolute inset-y-0 left-12 right-1 flex items-end gap-[2px]">
+    {%- for d in daily %}
+    <div tabindex="0" data-tip="{{ d.date.strftime('%a %d %b') }}&#10;{{ d.revenue | money }} · {{ d.orders }} order{{ 's' if d.orders != 1 }}"
+      class="chart-col group flex-1 h-full flex items-end outline-none">
+      <div class="w-full rounded-t-[4px] bg-brand group-hover:bg-blue-800 group-focus:bg-blue-800 transition-colors" style="height: {{ (d.revenue / top * 100) if top else 0 }}%"></div>
+    </div>
+    {%- endfor %}
+  </div>
+</div>
+<div class="pl-12 pr-1 mt-1.5 flex gap-[2px] text-[11px] text-gray-400">
+  {%- for d in daily %}<span class="flex-1 text-center whitespace-nowrap overflow-visible">{% if loop.index0 % 3 == 0 or loop.last %}{{ d.date.strftime('%d %b') }}{% endif %}</span>{% endfor %}
+</div>
+<details class="mt-3 text-[12px]">
+  <summary class="cursor-pointer text-gray-500 font-semibold">View as table</summary>
+  <table class="mt-2 w-full">
+    <thead><tr class="text-left text-gray-500"><th class="py-1 font-semibold">Day</th><th class="py-1 font-semibold text-right">Revenue</th><th class="py-1 font-semibold text-right">Orders</th></tr></thead>
+    <tbody>
+      {%- for d in daily | reverse %}
+      <tr class="border-t border-gray-50"><td class="py-1">{{ d.date.strftime('%a %d %b') }}</td><td class="py-1 text-right tabular-nums">{{ d.revenue | money }}</td><td class="py-1 text-right tabular-nums">{{ d.orders }}</td></tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+</details>
+{%- endmacro %}
+
+{#- Horizontal bar list: revenue per game. -#}
+{% macro game_bars(rows, limit=None) -%}
+{%- set rows = rows[:limit] if limit else rows -%}
+{%- set top = rows | map(attribute="revenue") | max if rows else 0 -%}
+<ul class="space-y-2.5">
+  {%- for r in rows %}
+  <li tabindex="0" data-tip="{{ r.game.name }}&#10;{{ r.revenue | money }} · {{ r.orders }} order{{ 's' if r.orders != 1 }}" class="group grid grid-cols-[7.5rem_1fr_4.5rem] items-center gap-3 outline-none">
+    <span class="truncate text-[13px] font-semibold text-ink">{{ r.game.name }}</span>
+    <span class="h-3 rounded-r-[4px] bg-gray-100">
+      <span class="block h-full rounded-r-[4px] bg-brand group-hover:bg-blue-800 group-focus:bg-blue-800 transition-colors" style="width: {{ (r.revenue / top * 100) if top else 0 }}%"></span>
+    </span>
+    <span class="text-right text-[13px] font-semibold tabular-nums text-ink">{{ r.revenue | money }}</span>
+  </li>
+  {%- endfor %}
+</ul>
+{%- endmacro %}
+
+{#- Prev / next pager keeping current query args. -#}
+{% macro pagination(page, pages, endpoint, args) -%}
+{%- if pages > 1 %}
+<nav class="flex items-center justify-between gap-3 pt-4 text-[13px]" aria-label="Pagination">
+  <span class="text-gray-500">Page {{ page }} of {{ pages }}</span>
+  <div class="flex gap-2">
+    {%- set base = "rounded-lg border border-gray-200 px-3 py-1.5 font-semibold" %}
+    {%- if page > 1 %}<a class="{{ base }} bg-white hover:bg-gray-50" href="{{ url_for(endpoint, page=page - 1, **args) }}">Previous</a>{% else %}<span class="{{ base }} text-gray-300">Previous</span>{% endif %}
+    {%- if page < pages %}<a class="{{ base }} bg-white hover:bg-gray-50" href="{{ url_for(endpoint, page=page + 1, **args) }}">Next</a>{% else %}<span class="{{ base }} text-gray-300">Next</span>{% endif %}
+  </div>
+</nav>
+{%- endif %}
+{%- endmacro %}

@@ -16,3 +16,8 @@ def subscribe(email):
     db.execute("INSERT OR IGNORE INTO subscribers (email, created_at) VALUES (?, ?)", (email, now_iso()))
     db.commit()
     return email
+
+
+def all_subscribers():
+    rows = get_db().execute("SELECT email, created_at FROM subscribers ORDER BY created_at DESC").fetchall()
+    return [dict(r) for r in rows]

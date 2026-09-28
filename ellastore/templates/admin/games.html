@@ -1,0 +1,46 @@
+{% extends "admin/base.html" %}
+{% from "admin/components.html" import panel, game_bars %}
+{% from "components/ui.html" import game_art %}
+
+{% block title %}Games{% endblock %}
+{% block heading %}Games{% endblock %}
+{% block subheading %}<p class="text-[13px] text-gray-500">Catalog is defined in <code class="text-[12px]">ellastore/catalog.py</code></p>{% endblock %}
+
+{% block content %}
+<div class="grid xl:grid-cols-5 gap-4 items-start">
+  {% call panel("Catalog", cls="xl:col-span-3") %}
+    <div class="overflow-x-auto -mx-4">
+      <table class="w-full text-[13px]">
+        <thead><tr class="text-left text-[11px] uppercase tracking-wide text-gray-500 border-b border-gray-100">
+          <th class="px-4 py-2 font-semibold">Game</th>
+          <th class="px-4 py-2 font-semibold">Products</th>
+          <th class="px-4 py-2 font-semibold">Price range</th>
+          <th class="px-4 py-2 font-semibold text-right">Orders</th>
+          <th class="px-4 py-2 font-semibold text-right">Revenue</th>
+        </tr></thead>
+        <tbody>
+          {%- for r in rows | sort(attribute="game.name") %}
+          {%- set prices = r.game.products | map(attribute="price") | list %}
+          <tr class="border-b border-gray-50 last:border-0 hover:bg-gray-50">
+            <td class="px-4 py-2.5">
+              <div class="flex items-center gap-3">
+                {{ game_art(r.game, "icon", "w-9 h-9 rounded-lg shrink-0") }}
+                <div><a href="{{ url_for('pages.topup', game_id=r.game.id) }}" class="font-semibold text-ink hover:text-brand">{{ r.game.name }}</a>
+                  <span class="block text-[12px] text-gray-500 font-mono">{{ r.game.id }}</span></div>
+              </div>
+            </td>
+            <td class="px-4 py-2.5">{{ prices | length }} <span class="text-gray-500">· {{ r.game.unit }}</span></td>
+            <td class="px-4 py-2.5 tabular-nums whitespace-nowrap">{{ prices | min | money }} – {{ prices | max | money }}</td>
+            <td class="px-4 py-2.5 text-right tabular-nums"><a href="{{ url_for('admin.order_list', game=r.game.id) }}" class="hover:text-brand">{{ r.orders }}</a></td>
+            <td class="px-4 py-2.5 text-right font-semibold tabular-nums">{{ r.revenue | money }}</td>
+          </tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endcall %}
+  {% call panel("Revenue by game", cls="xl:col-span-2") %}
+    {{ game_bars(rows) }}
+  {% endcall %}
+</div>
+{% endblock %}

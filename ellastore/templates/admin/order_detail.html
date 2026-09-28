@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% from "admin/components.html" import panel, status_badge %}
+
+{% block title %}Order #{{ order.id }}{% endblock %}
+{% block heading %}<span class="font-mono">#{{ order.id }}</span>{% endblock %}
+{% block subheading %}<div class="mt-1 flex items-center gap-2 text-[13px] text-gray-500">{{ status_badge(order.status) }} Created {{ order.created_at | datetime }} UTC</div>{% endblock %}
+{% block actions %}<a href="{{ url_for('admin.order_list') }}" class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-[13px] font-semibold hover:bg-gray-50">&larr; All orders</a>{% endblock %}
+
+{% block content %}
+<div class="grid lg:grid-cols-3 gap-4 items-start">
+  {% call panel("Details", cls="lg:col-span-2") %}
+    <dl class="grid sm:grid-cols-2 gap-x-6 gap-y-4 text-[14px]">
+      {%- set rows = [
+        ("Game", game.name if game else order.game_id),
+        ("Product", order.item),
+        ("Player ID", order.player_id ~ (" (" ~ order.server ~ ")" if order.server else "")),
+        ("Player name", order.player_name or "-"),
+        ("Payment method", order.pay_method | upper),
+        ("Coupon", order.coupon or "-"),
+      ] %}
+      {%- for label, value in rows %}
+      <div><dt class="text-[12px] font-semibold text-gray-500">{{ label }}</dt><dd class="mt-0.5 font-semibold text-ink break-words">{{ value }}</dd></div>
+      {%- endfor %}
+    </dl>
+    <div class="mt-5 border-t border-gray-100 pt-4 space-y-1.5 text-[14px] tabular-nums">
+      <div class="flex justify-between"><span class="text-gray-500">Subtotal</span><span>{{ order.subtotal | money }}</span></div>
+      <div class="flex justify-between"><span class="text-gray-500">Discount</span><span>{{ '-' ~ (order.discount * 100) | round | int ~ '%' if order.discount else '-' }}</span></div>
+      <div class="flex justify-between text-[16px] font-extrabold"><span>Total</span><span>{{ order.total | money }}</span></div>
+    </div>
+  {% endcall %}
+
+  {% call panel("Update status") %}
+    <form method="post" action="{{ url_for('admin.order_status', order_id=order.id) }}" class="space-y-2">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {%- for s in statuses %}
+      <label class="flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer has-[:checked]:border-brand has-[:checked]:bg-blue-50 border-gray-200">
+        <input type="radio" name="status" value="{{ s }}" {{ 'checked' if s == order.status }} class="accent-[#2563EB]">
+        {{ status_badge(s) }}
+      </label>
+      {%- endfor %}
+      <button class="mt-2 w-full rounded-xl bg-brand text-white text-[14px] font-bold py-2.5 hover:bg-blue-700">Save status</button>
+    </form>
+  {% endcall %}
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "admin/base.html" %}
+{% from "admin/components.html" import panel %}
+
+{% block title %}Subscribers{% endblock %}
+{% block heading %}Subscribers{% endblock %}
+{% block subheading %}<p class="text-[13px] text-gray-500">{{ subscribers | length }} newsletter subscriber{{ 's' if subscribers | length != 1 }}</p>{% endblock %}
+{% block actions %}<a href="{{ url_for('admin.subscriber_csv') }}" class="rounded-lg bg-brand text-white px-3 py-1.5 text-[13px] font-semibold hover:bg-blue-700">Export CSV</a>{% endblock %}
+
+{% block content %}
+{% call panel("Newsletter") %}
+  {%- if subscribers %}
+  <div class="overflow-x-auto -mx-4">
+    <table class="w-full text-[13px]">
+      <thead><tr class="text-left text-[11px] uppercase tracking-wide text-gray-500 border-b border-gray-100">
+        <th class="px-4 py-2 font-semibold">Email</th><th class="px-4 py-2 font-semibold">Subscribed</th>
+      </tr></thead>
+      <tbody>
+        {%- for s in subscribers %}
+        <tr class="border-b border-gray-50 last:border-0"><td class="px-4 py-2.5 font-semibold">{{ s.email }}</td><td class="px-4 py-2.5 text-gray-500 whitespace-nowrap">{{ s.created_at | datetime }}</td></tr>
+        {%- endfor %}
+      </tbody>
+    </table>
+  </div>
+  {%- else %}
+  <p class="py-8 text-center text-[13px] text-gray-500">No subscribers yet.</p>
+  {%- endif %}
+{% endcall %}
+{% endblock %}

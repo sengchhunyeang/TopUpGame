@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% from "admin/components.html" import panel, orders_table, pagination %}
+
+{% block title %}Orders{% endblock %}
+{% block heading %}Orders{% endblock %}
+{% block subheading %}<p class="text-[13px] text-gray-500">{{ total }} matching order{{ 's' if total != 1 }}</p>{% endblock %}
+
+{% block content %}
+{#- Status tabs -#}
+<div class="flex gap-1.5 overflow-x-auto pb-1 mb-3">
+  {%- set tab = "whitespace-nowrap rounded-full border px-3 py-1.5 text-[12px] font-semibold" %}
+  {%- set on = "bg-ink text-white border-ink" %}
+  {%- set off = "bg-white text-gray-600 border-gray-200 hover:bg-gray-50" %}
+  <a href="{{ url_for('admin.order_list', game=filters.game or None, q=filters.q or None) }}" class="{{ tab }} {{ on if not filters.status else off }}">All <span class="opacity-70">{{ status_counts.values() | sum }}</span></a>
+  {%- for s in statuses %}
+  <a href="{{ url_for('admin.order_list', status=s, game=filters.game or None, q=filters.q or None) }}" class="{{ tab }} {{ on if filters.status == s else off }}">{{ s | humanize }} <span class="opacity-70">{{ status_counts.get(s, 0) }}</span></a>
+  {%- endfor %}
+</div>
+
+{% call panel("Order list") %}
+  <form method="get" class="flex flex-wrap gap-2 mb-4">
+    {%- if filters.status %}<input type="hidden" name="status" value="{{ filters.status }}">{% endif %}
+    <input name="q" value="{{ filters.q }}" placeholder="Order #, player ID or name" aria-label="Search orders"
+      class="flex-1 min-w-[12rem] rounded-lg border border-gray-200 bg-[#f7f7fa] px-3 py-2 text-[13px] outline-none focus:border-brand focus:bg-white" />
+    <select name="game" aria-label="Game" class="rounded-lg border border-gray-200 bg-[#f7f7fa] px-3 py-2 text-[13px] outline-none focus:border-brand">
+      <option value="">All games</option>
+      {%- for g in games %}<option value="{{ g.id }}" {{ 'selected' if filters.game == g.id }}>{{ g.name }}</option>{% endfor %}
+    </select>
+    <button class="rounded-lg bg-brand text-white text-[13px] font-semibold px-4 py-2">Filter</button>
+    {%- if filters.q or filters.game %}<a href="{{ url_for('admin.order_list', status=filters.status or None) }}" class="rounded-lg px-3 py-2 text-[13px] font-semibold text-gray-500 hover:text-ink">Clear</a>{% endif %}
+  </form>
+  {{ orders_table(orders) }}
+  {{ pagination(page, pages, "admin.order_list", query_args) }}
+{% endcall %}
+{% endblock %}

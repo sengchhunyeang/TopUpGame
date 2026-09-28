@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>{% block title %}Admin{% endblock %} · ELLASTORE Admin</title>
+<script>
+  (function () {
+    var w = console.warn;
+    console.warn = function () {
+      var m = arguments[0];
+      if (typeof m === 'string' && m.indexOf('cdn.tailwindcss.com') > -1) return;
+      w.apply(console, arguments);
+    };
+  })();
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+      colors: { brand: '#2563EB', ink: '#1f2233' }
+    } }
+  };
+</script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}" />
+</head>
+<body class="font-sans text-ink antialiased bg-[#f5f7fb] min-h-screen">
+{% from "components/icons.html" import icon %}
+{% from "admin/components.html" import flashes %}
+
+{%- set nav = [
+  ("admin.dashboard", "Dashboard", None),
+  ("admin.order_list", "Orders", pending_count or None),
+  ("admin.game_list", "Games", None),
+  ("admin.subscriber_list", "Subscribers", None),
+] %}
+
+<div class="lg:flex">
+  <!-- Sidebar (desktop) / top bar (mobile) -->
+  <aside class="lg:w-60 lg:shrink-0 lg:h-screen lg:sticky lg:top-0 bg-[#1d2b64] text-white">
+    <div class="flex items-center justify-between gap-3 px-4 py-3 lg:py-5">
+      <a href="{{ url_for('admin.dashboard') }}" class="font-extrabold italic tracking-wide text-lg">ELLASTORE <span class="not-italic font-semibold text-[11px] text-blue-200 align-middle">ADMIN</span></a>
+      <a href="{{ url_for('pages.home') }}" class="lg:hidden text-[12px] font-semibold text-blue-200">View store</a>
+    </div>
+    <nav class="flex lg:flex-col gap-1 px-2 pb-2 overflow-x-auto" aria-label="Admin">
+      {%- for endpoint, label, badge in nav %}
+      {%- set active = request.endpoint == endpoint or (endpoint == 'admin.order_list' and request.endpoint == 'admin.order_detail') %}
+      <a href="{{ url_for(endpoint) }}" {% if active %}aria-current="page"{% endif %}
+        class="flex items-center justify-between gap-3 whitespace-nowrap rounded-lg px-3 py-2 text-[14px] font-semibold {{ 'bg-white/15 text-white' if active else 'text-blue-100 hover:bg-white/10' }}">
+        {{ label }}
+        {%- if badge %}<span class="rounded-full bg-amber-400 text-[#1d2b64] text-[11px] font-bold px-1.5 min-w-[1.25rem] text-center" title="{{ badge }} pending">{{ badge }}</span>{% endif %}
+      </a>
+      {%- endfor %}
+    </nav>
+    <div class="hidden lg:block absolute bottom-0 inset-x-0 w-60 p-4 border-t border-white/10">
+      <a href="{{ url_for('pages.home') }}" class="block text-[13px] font-semibold text-blue-200 hover:text-white">View store &rarr;</a>
+      <form method="post" action="{{ url_for('admin.logout') }}" class="mt-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="text-[13px] font-semibold text-blue-200 hover:text-white">Log out ({{ session.admin }})</button>
+      </form>
+    </div>
+  </aside>
+
+  <main class="flex-1 min-w-0 px-4 py-5 lg:px-8 lg:py-7">
+    <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
+      <div>
+        <h1 class="text-2xl font-extrabold text-ink">{% block heading %}{% endblock %}</h1>
+        {%- block subheading %}{% endblock %}
+      </div>
+      <div class="flex items-center gap-2">
+        {% block actions %}{% endblock %}
+        <form method="post" action="{{ url_for('admin.logout') }}" class="lg:hidden">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-[13px] font-semibold">Log out</button>
+        </form>
+      </div>
+    </div>
+    {{ flashes() }}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<div id="chart-tip" role="tooltip" class="hidden fixed z-50 pointer-events-none whitespace-pre rounded-lg bg-ink text-white text-[12px] font-semibold px-2.5 py-1.5 shadow-lg"></div>
+<script type="module" src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>
