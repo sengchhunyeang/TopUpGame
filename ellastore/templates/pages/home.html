@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "components/ui.html" import section_head, pill, empty_state %}
+{% from "components/cards.html" import game_card, feature_card %}
+{% from "components/carousel.html" import carousel %}
+
+{% block page_id %}home{% endblock %}
+
+{% block content %}
+<div class="mt-2">{{ carousel(slides) }}</div>
+
+<section class="mt-5">
+  {% call section_head("REWARDS", "gift") %}{{ pill("0 ITEMS") }}{{ pill("SEE ALL", "#") }}{% endcall %}
+  <div class="mt-3">{{ empty_state("gift", "No rewards available", "Rewards will appear here when they become available.") }}</div>
+</section>
+
+<section class="mt-6">
+  {% call section_head("FEATURED GAMES", "gamepad") %}{{ pill(games | length ~ " GAMES") }}{{ pill("SEE ALL", "#") }}{% endcall %}
+  <div data-game-grid class="mt-3 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+    {%- for game in games %}
+    {{ game_card(game, hidden=(game.id not in match_ids)) }}
+    {%- endfor %}
+    <p data-empty class="{{ 'hidden ' if match_ids }}col-span-full text-center text-sm text-gray-500 py-8">No games found.</p>
+  </div>
+</section>
+
+<section class="mt-8">
+  {{ section_head("WHY CHOOSE US?", "trophy") }}
+  <div class="mt-3 grid grid-cols-2 lg:grid-cols-4 gap-3">
+    {%- for f in features %}{{ feature_card(f) }}{% endfor %}
+  </div>
+</section>
+
+<section class="mt-8 mb-6">
+  {{ section_head("NEWS & PROMOTIONS") }}
+  <p class="mt-2 px-1 text-[16px] text-gray-400">No promotions available.</p>
+</section>
+{% endblock %}

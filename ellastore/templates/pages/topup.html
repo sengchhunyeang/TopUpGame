@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% from "components/icons.html" import icon %}
+{% from "components/ui.html" import card, step_heading, text_input %}
+{% from "components/cards.html" import product_card, payment_option %}
+{% from "components/topup.html" import game_hero, player_status, coupon_field, pay_bar, mascot %}
+
+{% block title %}{{ game.name }} Top-up - ELLASTORE{% endblock %}
+{% block page_id %}topup{% endblock %}
+
+{% block content %}
+<div data-topup data-game-id="{{ game.id }}" data-server-type="{{ game.server or '' }}">
+  <div class="pt-3">
+    <a href="{{ url_for('pages.home') }}" class="inline-flex items-center gap-1 text-[13px] font-bold text-gray-600 bg-white rounded-full pl-2 pr-3.5 py-1.5 card-shadow">{{ icon("back", "w-4 h-4") }} Back</a>
+  </div>
+
+  {{ game_hero(game) }}
+
+  <div class="mt-4 grid lg:grid-cols-5 gap-4 items-start">
+    <div class="lg:col-span-3 space-y-4">
+      {% call card() %}
+        {{ step_heading(1, "ENTER YOUR INFORMATION") }}
+        <div class="mt-3 space-y-2.5">
+          {{ text_input("uid", "Enter Game ID", numeric=True) }}
+          {%- if game.server == "text" %}
+          {{ text_input("sid", "Server / Zone ID", numeric=True) }}
+          {%- elif game.server == "select" %}
+          <select id="srv" class="w-full rounded-xl border border-gray-200 bg-[#f7f7fa] px-4 py-3 text-sm outline-none focus:border-brand">
+            {%- for s in game.servers %}<option>{{ s }}</option>{% endfor %}
+          </select>
+          {%- endif %}
+        </div>
+        {{ player_status() }}
+      {% endcall %}
+
+      {% call card() %}
+        {{ step_heading(2, "CHOOSE PRODUCT") }}
+        <div data-products class="mt-3 grid grid-cols-2 gap-2.5">
+          {%- for p in game.products %}{{ product_card(p, loop.index0, game.color) }}{% endfor %}
+        </div>
+      {% endcall %}
+    </div>
+
+    <div class="lg:col-span-2 space-y-4">
+      {% call card() %}
+        {{ step_heading(3, "PAYMENT METHOD") }}
+        <div data-payments class="mt-3 space-y-2.5">
+          {%- for m in payment_methods %}{{ payment_option(m) }}{% endfor %}
+        </div>
+        {{ coupon_field() }}
+        <p class="mt-3 text-[11px] text-gray-500 leading-snug">By clicking Pay Now, you agree to our <span class="text-brand font-semibold">Terms and Conditions</span>.</p>
+      {% endcall %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block overlay %}
+{{ mascot() }}
+{{ pay_bar() }}
+{% endblock %}

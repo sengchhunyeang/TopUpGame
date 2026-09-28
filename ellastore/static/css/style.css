@@ -1,0 +1,36 @@
+html, body { overflow-x: hidden; }
+body { background: linear-gradient(180deg,#e6f0ff 0%,#eef4ff 22%,#f4f7ff 100%); background-attachment: fixed; }
+.card-shadow { box-shadow: 0 6px 20px rgba(60,40,120,.10); }
+.login-btn { background: linear-gradient(90deg,#1d4ed8,#3b82f6); box-shadow: 0 6px 16px rgba(37,99,235,.35); }
+.login-btn:disabled { opacity: .7; }
+.banner-a { background: linear-gradient(135deg,#bfdbfe 0%,#dbeafe 45%,#93c5fd 100%); }
+.banner-b { background: linear-gradient(135deg,#c7f0e8 0%,#e2faf5 50%,#a5e6d9 100%); }
+.banner-c { background: linear-gradient(135deg,#ffe0b8 0%,#fff0d9 50%,#ffc98a 100%); }
+.rays { background: repeating-conic-gradient(from 0deg at 75% 60%, rgba(255,255,255,.28) 0 6deg, transparent 6deg 12deg); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+@keyframes pop { 0% { transform: scale(.9); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
+.pop { animation: pop .18s ease-out; }
+
+/* ---- Carousel dots (active dot set by carousel.js) ---- */
+.carousel-dot { width: .5rem; background: rgba(255,255,255,.8); }
+.carousel-dot[aria-current="true"] { width: 2.25rem; background: #fb923c; }
+
+/* ---- Favorite toggle ---- */
+[data-fav][aria-pressed="true"] { color: #2563EB; }
+
+/* ---- Selectable choices (products, payment methods) ---- */
+.choice { border-color: #f3f4f6; background: #fff; }
+.choice[aria-pressed="true"] { border-color: #2563EB; background: #eff6ff; box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1); }
+.choice-check { display: none; }
+.choice[aria-pressed="true"] .choice-check { display: flex; }
+.choice-radio { border-color: #d1d5db; }
+.choice-radio > span { display: none; }
+.choice[aria-pressed="true"] .choice-radio { border-color: #2563EB; }
+.choice[aria-pressed="true"] .choice-radio > span { display: block; }
+
+/* ---- Player status: show only the block matching data-state ---- */
+[data-player-status] > [data-when] { display: none; }
+[data-player-status][data-state="idle"] > [data-when="idle"],
+[data-player-status][data-state="loading"] > [data-when="loading"],
+[data-player-status][data-state="ok"] > [data-when="ok"] { display: flex; }

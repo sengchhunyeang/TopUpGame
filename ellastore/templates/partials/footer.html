@@ -1,0 +1,47 @@
+{% from "components/icons.html" import icon %}
+{% from "components/ui.html" import payment_badges %}
+<footer class="bg-[#5b5754] text-white {{ footer_class | default('') }}">
+  <div class="max-w-6xl mx-auto px-5 py-6">
+    <h4 class="font-semibold text-[19px]">{{ store.tagline }}</h4>
+    <p class="mt-3 text-[15px] leading-relaxed text-gray-300">{{ store.blurb }}<br>Secure payment.</p>
+
+    <div class="mt-5 grid grid-cols-2 gap-x-4 sm:max-w-xl">
+      <div class="border-t border-white/20 pt-4">
+        <h5 class="font-semibold text-[18px]">Top {{ store.top_products | length }} Products</h5>
+        <ul class="mt-3 space-y-3 text-[15px] text-gray-300">
+          {%- for g in nav_games if g.id in store.top_products %}
+          <li><a href="{{ url_for('pages.topup', game_id=g.id) }}">{{ g.name }}{% if g.flag %} <span class="text-[13px]">ខ្មែរ</span>{% endif %}</a></li>
+          {%- endfor %}
+        </ul>
+      </div>
+      <div class="border-t border-white/20 pt-4">
+        <h5 class="font-semibold text-[18px]">About</h5>
+        <ul class="mt-3 space-y-3 text-[15px] text-gray-300">
+          {%- for link in store.about_links %}<li>{{ link }}</li>{% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-5 border-t border-white/20 pt-4">
+      <h5 class="font-semibold text-[18px]">Get Updates</h5>
+      <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex gap-2.5">
+          {%- for s in store.socials %}
+          <span class="w-10 h-10 rounded-full border border-white/30 bg-white/[.07] flex items-center justify-center text-gray-200" title="{{ s | capitalize }}">{{ icon(s, "w-[19px] h-[19px]") }}</span>
+          {%- endfor %}
+        </div>
+        <form data-subscribe class="flex-1 min-w-[200px] max-w-xs flex items-center bg-gray-300/80 rounded-full pl-4 pr-1.5 py-1.5">
+          <input name="email" type="email" placeholder="Enter your email" aria-label="Email" class="flex-1 min-w-0 bg-transparent text-[14px] text-ink placeholder-gray-500 outline-none" />
+          <button class="bg-white text-black text-[13px] font-semibold rounded-full px-3 py-1.5">Subscribe</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-5 border-t border-white/20 pt-5 text-center space-y-3">
+      <p class="text-[15px] text-gray-300">&copy; {{ store.year }} {{ store.name }}. All rights reserved.</p>
+      <p class="text-[15px] text-gray-300"><span class="text-xs mr-1 font-mono">&lt;/&gt;</span> Developed by {{ store.developer }}</p>
+      <div class="flex items-center justify-center gap-2.5 text-[15px] text-gray-300">We accept: {{ payment_badges() }}</div>
+    </div>
+  </div>
+  <div class="pb-safe"></div>
+</footer>

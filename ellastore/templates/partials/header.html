@@ -1,0 +1,49 @@
+{% from "components/icons.html" import icon %}
+<header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-blue-50">
+  <div class="max-w-6xl mx-auto flex items-center justify-between gap-2 px-2.5 py-2.5 sm:px-5">
+    <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+      <button type="button" data-toggle-panel="menuPanel" aria-label="Menu" aria-expanded="false" class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#f2f2f4] shadow-[0_4px_10px_rgba(0,0,0,.08)] flex flex-col items-center justify-center gap-[4px] sm:gap-[5px]">
+        <span class="block w-[18px] sm:w-[22px] h-[3px] rounded-full bg-[#15171f]"></span>
+        <span class="block w-[18px] sm:w-[22px] h-[3px] rounded-full bg-[#15171f]"></span>
+        <span class="block w-[18px] sm:w-[22px] h-[3px] rounded-full bg-[#15171f]"></span>
+      </button>
+      <a href="{{ url_for('pages.home') }}" aria-label="ELLASTORE" class="min-w-0 shrink">
+        <svg class="w-[92px] sm:w-[112px] h-auto" viewBox="0 0 112 38" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M2 12 L26 7 L30 16 L10 20 Z" fill="#5d6fa8" stroke="#1d2b64" stroke-width="1.2"/>
+          <path d="M110 12 L86 7 L82 16 L102 20 Z" fill="#5d6fa8" stroke="#1d2b64" stroke-width="1.2"/>
+          <path d="M48 8 L56 2 L64 8 L60 12 L52 12 Z" fill="#8ea3e0" stroke="#1d2b64" stroke-width="1.2"/>
+          <path d="M14 14 L98 14 L94 30 L18 30 Z" fill="#1d2b64"/>
+          <text x="56" y="27" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-style="italic" font-size="15" letter-spacing="1" fill="#ffffff" stroke="#8ea3e0" stroke-width=".6" paint-order="stroke">ELLASTORE</text>
+        </svg>
+      </a>
+    </div>
+    <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+      <button type="button" data-toggle-panel="searchPanel" aria-label="Search" aria-expanded="false" class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center">
+        <svg class="w-[30px] h-[30px] sm:w-[34px] sm:h-[34px]" viewBox="0 0 34 34" aria-hidden="true">
+          <circle cx="14" cy="14" r="10" fill="#a7e6f2" stroke="#15304f" stroke-width="3"/>
+          <path d="M8.5 10.5 A7 7 0 0 1 14 7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+          <line x1="21.5" y1="21.5" x2="30" y2="30" stroke="#15304f" stroke-width="4.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <a href="#" data-login class="login-btn flex items-center gap-2 sm:gap-3 rounded-full pl-3.5 pr-1 py-1 sm:pl-5 sm:pr-1.5 sm:py-1.5 text-white font-extrabold text-[13px] sm:text-[15px] tracking-wide">
+        LOGIN
+        <span class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#f3eeff] border border-white/70 flex items-center justify-center text-brand">{{ icon("login", "w-[17px] h-[17px] sm:w-[19px] sm:h-[19px]") }}</span>
+      </a>
+    </div>
+  </div>
+
+  <nav id="menuPanel" class="hidden border-t border-blue-50 bg-white">
+    <div class="max-w-6xl mx-auto px-3 py-2 grid grid-cols-2 sm:grid-cols-3 gap-1 text-[13px] font-semibold">
+      <a href="{{ url_for('pages.home') }}" class="rounded-xl px-3 py-2 {{ 'bg-blue-50 text-brand' if request.endpoint == 'pages.home' else 'hover:bg-gray-100' }}">Home</a>
+      {%- for g in nav_games %}
+      <a href="{{ url_for('pages.topup', game_id=g.id) }}" class="rounded-xl px-3 py-2 truncate {{ 'bg-blue-50 text-brand' if request.view_args and request.view_args.get('game_id') == g.id else 'hover:bg-gray-100' }}">{{ g.name }}</a>
+      {%- endfor %}
+    </div>
+  </nav>
+
+  <form id="searchPanel" action="{{ url_for('pages.home') }}" method="get" role="search" class="hidden border-t border-blue-50 bg-white">
+    <div class="max-w-6xl mx-auto px-3 py-2">
+      <input id="searchInput" name="q" type="search" value="{{ query or '' }}" placeholder="Search games..." class="w-full rounded-full bg-[#f2f2f6] px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-brand/40" />
+    </div>
+  </form>
+</header>

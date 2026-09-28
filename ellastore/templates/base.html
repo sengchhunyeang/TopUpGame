@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>{% block title %}ELLASTORE - Game Top-up{% endblock %}</title>
+
+<!-- Suppress the Tailwind CDN "should not be used in production" console warning -->
+<script>
+  (function () {
+    var w = console.warn;
+    console.warn = function () {
+      var m = arguments[0];
+      if (typeof m === 'string' && m.indexOf('cdn.tailwindcss.com') > -1) return;
+      w.apply(console, arguments);
+    };
+  })();
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Khmer:wght@500;700&display=swap" rel="stylesheet" />
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter', 'Noto Sans Khmer', 'system-ui', 'sans-serif'] },
+        colors: { brand: '#2563EB', ink: '#1f2233', mint: '#dcf8ef', topup: '#6a6fd0' }
+      }
+    }
+  };
+</script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+
+<body class="font-sans text-ink antialiased min-h-screen" data-page="{% block page_id %}{% endblock %}">
+
+{% include "partials/header.html" %}
+
+<div id="toast" role="status" aria-live="polite" class="hidden fixed top-16 left-1/2 -translate-x-1/2 z-[60] max-w-[90vw] bg-ink text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg text-center"></div>
+
+<main class="max-w-6xl mx-auto px-2 sm:px-4 pb-6">
+  {% block content %}{% endblock %}
+</main>
+
+{% block overlay %}{% endblock %}
+
+{% include "partials/footer.html" %}
+
+<script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

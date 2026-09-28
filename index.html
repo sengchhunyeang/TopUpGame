@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ELLASTORE - Game Top-up</title>
+
+<!-- Suppress the Tailwind CDN "should not be used in production" console warning -->
+<script>
+  (function () {
+    var w = console.warn;
+    console.warn = function () {
+      var m = arguments[0];
+      if (typeof m === 'string' && m.indexOf('cdn.tailwindcss.com') > -1) return;
+      w.apply(console, arguments);
+    };
+  })();
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Khmer:wght@500;700&display=swap" rel="stylesheet" />
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter', 'Noto Sans Khmer', 'system-ui', 'sans-serif'] },
+        colors: { brand: '#2563EB', ink: '#1f2233', mint: '#dcf8ef', topup: '#6a6fd0' }
+      }
+    }
+  };
+</script>
+<style>
+  html, body { overflow-x: hidden; }
+  body { background: linear-gradient(180deg,#e6f0ff 0%,#eef4ff 22%,#f4f7ff 100%); background-attachment: fixed; }
+  .card-shadow { box-shadow: 0 6px 20px rgba(60,40,120,.10); }
+  .login-btn { background: linear-gradient(90deg,#1d4ed8,#3b82f6); box-shadow: 0 6px 16px rgba(37,99,235,.35); }
+  .banner-a { background: linear-gradient(135deg,#bfdbfe 0%,#dbeafe 45%,#93c5fd 100%); }
+  .banner-b { background: linear-gradient(135deg,#c7f0e8 0%,#e2faf5 50%,#a5e6d9 100%); }
+  .banner-c { background: linear-gradient(135deg,#ffe0b8 0%,#fff0d9 50%,#ffc98a 100%); }
+  .rays { background: repeating-conic-gradient(from 0deg at 75% 60%, rgba(255,255,255,.28) 0 6deg, transparent 6deg 12deg); }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  @keyframes pop { 0% { transform: scale(.9); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
+  .pop { animation: pop .18s ease-out; }
+</style>
+</head>
+
+<body class="font-sans text-ink antialiased min-h-screen">
+
+<!-- ============ HEADER ============ -->
+<header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-blue-50">
+  <div class="max-w-6xl mx-auto flex items-center justify-between gap-2 px-2.5 py-2.5 sm:px-5">
+    <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+      <button data-act="menu" aria-label="Menu" class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#f2f2f4] shadow-[0_4px_10px_rgba(0,0,0,.08)] flex flex-col items-center justify-center gap-[4px] sm:gap-[5px]">
+        <span class="block w-[18px] sm:w-[22px] h-[3px] rounded-full bg-[#15171f]"></span>
+        <span class="block w-[18px] sm:w-[22px] h-[3px] rounded-full bg-[#15171f]"></span>
+        <span class="block w-[18px] sm:w-[22px] h-[3px] rounded-full bg-[#15171f]"></span>
+      </button>
+      <a href="#/" aria-label="ELLASTORE" class="min-w-0 shrink">
+        <svg class="w-[92px] sm:w-[112px] h-auto" viewBox="0 0 112 38" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 12 L26 7 L30 16 L10 20 Z" fill="#5d6fa8" stroke="#1d2b64" stroke-width="1.2"/>
+          <path d="M110 12 L86 7 L82 16 L102 20 Z" fill="#5d6fa8" stroke="#1d2b64" stroke-width="1.2"/>
+          <path d="M48 8 L56 2 L64 8 L60 12 L52 12 Z" fill="#8ea3e0" stroke="#1d2b64" stroke-width="1.2"/>
+          <path d="M14 14 L98 14 L94 30 L18 30 Z" fill="#1d2b64"/>
+          <text x="56" y="27" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-style="italic" font-size="15" letter-spacing="1" fill="#ffffff" stroke="#8ea3e0" stroke-width=".6" paint-order="stroke">ELLASTORE</text>
+        </svg>
+      </a>
+    </div>
+    <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+      <button data-act="search" aria-label="Search" class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center">
+        <svg class="w-[30px] h-[30px] sm:w-[34px] sm:h-[34px]" viewBox="0 0 34 34">
+          <circle cx="14" cy="14" r="10" fill="#a7e6f2" stroke="#15304f" stroke-width="3"/>
+          <path d="M8.5 10.5 A7 7 0 0 1 14 7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+          <line x1="21.5" y1="21.5" x2="30" y2="30" stroke="#15304f" stroke-width="4.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <a href="#" data-act="login" class="login-btn flex items-center gap-2 sm:gap-3 rounded-full pl-3.5 pr-1 py-1 sm:pl-5 sm:pr-1.5 sm:py-1.5 text-white font-extrabold text-[13px] sm:text-[15px] tracking-wide">
+        LOGIN
+        <span class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#f3eeff] border border-white/70 flex items-center justify-center text-brand">
+          <svg class="w-[17px] h-[17px] sm:w-[19px] sm:h-[19px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/></svg>
+        </span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Menu panel -->
+  <div id="menuPanel" class="hidden border-t border-blue-50 bg-white">
+    <div class="max-w-6xl mx-auto px-3 py-2 grid grid-cols-2 sm:grid-cols-3 gap-1 text-[13px] font-semibold" id="menuList"></div>
+  </div>
+  <!-- Search panel -->
+  <div id="searchPanel" class="hidden border-t border-blue-50 bg-white">
+    <div class="max-w-6xl mx-auto px-3 py-2">
+      <input id="searchInput" type="text" placeholder="Search games..." class="w-full rounded-full bg-[#f2f2f6] px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-brand/40" />
+    </div>
+  </div>
+</header>
+
+<div id="toast" class="hidden fixed top-16 left-1/2 -translate-x-1/2 z-[60] max-w-[90vw] bg-ink text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg text-center"></div>
+
+<!-- ============ APP ROOT ============ -->
+<main id="app" class="max-w-6xl mx-auto px-2 sm:px-4 pb-6"></main>
+
+<!-- Floating layers for the top-up page -->
+<div id="overlay"></div>
+
+<!-- ============ FOOTER ============ -->
+<footer id="footer" class="bg-[#5b5754] text-white">
+  <div class="max-w-6xl mx-auto px-5 py-6">
+    <h4 class="font-semibold text-[19px]">Ella Store - Official Partner</h4>
+    <p class="mt-3 text-[15px] leading-relaxed text-gray-300">Reliable game top-ups. Fast delivery.<br>Secure payment.</p>
+
+    <div class="mt-5 grid grid-cols-2 gap-x-4 sm:max-w-xl">
+      <div class="border-t border-white/20 pt-4">
+        <h5 class="font-semibold text-[18px]">Top 4 Products</h5>
+        <ul class="mt-3 space-y-3 text-[15px] text-gray-300">
+          <li><a href="#/game/mlbb">Mobile Legends</a></li>
+          <li><a href="#/game/freefire">Free Fire <span class="text-[13px]">ខ្មែរ</span></a></li>
+          <li><a href="#/game/bloodstrike">Blood Strike</a></li>
+          <li><a href="#/game/magicchess">Magic Chess Gogo</a></li>
+        </ul>
+      </div>
+      <div class="border-t border-white/20 pt-4">
+        <h5 class="font-semibold text-[18px]">About</h5>
+        <ul class="mt-3 space-y-3 text-[15px] text-gray-300">
+          <li>About Us</li><li>Visions</li><li>Polices</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-5 border-t border-white/20 pt-4">
+      <h5 class="font-semibold text-[18px]">Get Updates</h5>
+      <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex gap-2.5" id="socials"></div>
+        <div class="flex-1 min-w-[200px] max-w-xs flex items-center bg-gray-300/80 rounded-full pl-4 pr-1.5 py-1.5">
+          <input id="subEmail" type="email" placeholder="Enter your email" class="flex-1 min-w-0 bg-transparent text-[14px] text-ink placeholder-gray-500 outline-none" />
+          <button data-act="subscribe" class="bg-white text-black text-[13px] font-semibold rounded-full px-3 py-1.5">Subscribe</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-5 border-t border-white/20 pt-5 text-center space-y-3">
+      <p class="text-[15px] text-gray-300">&copy; 2026 Ella Store. All rights reserved.</p>
+      <p class="text-[15px] text-gray-300"><span class="text-xs mr-1 font-mono">&lt;/&gt;</span> Developed by MorganRapidAPI</p>
+      <div class="flex items-center justify-center gap-2.5 text-[15px] text-gray-300">
+        We accept:
+        <span class="bg-[#005e7b] text-white font-extrabold text-sm tracking-wider px-3 py-1.5 rounded-sm">ABA</span>
+        <span class="bg-[#e21a2c] text-white font-extrabold text-[12px] tracking-wider px-2.5 py-1.5 rounded-sm">KHQR</span>
+      </div>
+    </div>
+  </div>
+  <div class="pb-safe"></div>
+</footer>
+
+<script>
+/* =====================================================================
+   ASSET CONFIG
+   Put your OFFICIAL, licensed image URLs in the `cover`, `icon` and
+   `banner` fields of each game (and `img` on any product). When a URL is
+   empty or fails to load, a styled fallback is shown automatically.
+   ===================================================================== */
+const mlbbItems = [
+  ['86 Diamonds',1.20,'diamond'],['172 Diamonds',2.40,'diamond'],['257 Diamonds',3.55,'diamond'],
+  ['344 Diamonds',4.70,'diamond'],['429 Diamonds',5.85,'diamond'],['514 Diamonds',7.00,'diamond'],
+  ['706 Diamonds',9.40,'diamond'],['Weekly Diamond Pass',1.45,'pass'],['Twilight Pass',7.90,'pass']
+];
+const GAMES = [
+  { id:'mlbb', name:'Mobile Legends', logo:'MOBILE<br>LEGENDS', grad:'linear-gradient(135deg,#1b2a6b,#e8a12b 70%,#3b6fd8)', color:'#3b82f6',
+    server:'text', unit:'Diamonds', cover:'', icon:'', banner:'', items:mlbbItems },
+  { id:'freefire', name:'Free Fire', logo:'FREE FIRE', grad:'linear-gradient(135deg,#2b1748,#5c3ea8 60%,#1a1a2e)', color:'#f59e0b', flag:true,
+    server:null, unit:'Diamonds', cover:'', icon:'', banner:'',
+    items:[['100 Diamonds',0.95,'diamond'],['310 Diamonds',2.85,'diamond'],['520 Diamonds',4.75,'diamond'],['1060 Diamonds',9.50,'diamond'],['2180 Diamonds',19.00,'diamond'],['Weekly Membership',1.60,'pass'],['Monthly Membership',8.00,'pass']] },
+  { id:'bloodstrike', name:'Blood Strike', logo:'BLOOD STRIKE', grad:'linear-gradient(135deg,#1a1a2e,#c2185b 60%,#4a1d96)', color:'#ef4444',
+    server:null, unit:'Gold', cover:'', icon:'', banner:'',
+    items:[['100 Gold',0.99,'coin'],['310 Gold',2.99,'coin'],['520 Gold',4.99,'coin'],['1050 Gold',9.99,'coin'],['2180 Gold',19.99,'coin'],['Weekly Pass',1.99,'pass']] },
+  { id:'pubg', name:'PUBG Mobile', logo:'PUBG<br>MOBILE', grad:'linear-gradient(180deg,#5a4a3a,#1c1610)', color:'#f59e0b',
+    server:null, unit:'UC', cover:'', icon:'', banner:'',
+    items:[['60 UC',0.99,'coin'],['325 UC',4.99,'coin'],['660 UC',9.99,'coin'],['1800 UC',24.99,'coin'],['3850 UC',49.99,'coin'],['8100 UC',99.99,'coin']] },
+  { id:'mlbb-ph', name:'MLBB PH', logo:'MOBILE<br>LEGENDS', grad:'linear-gradient(135deg,#1b2a6b,#e8a12b 70%,#3b6fd8)', color:'#3b82f6',
+    server:'text', unit:'Diamonds', cover:'', icon:'', banner:'', items:mlbbItems },
+  { id:'mlbb-my', name:'MLBB MY', logo:'MOBILE<br>LEGENDS', grad:'linear-gradient(135deg,#1b2a6b,#e8a12b 70%,#3b6fd8)', color:'#3b82f6',
+    server:'text', unit:'Diamonds', cover:'', icon:'', banner:'', items:mlbbItems },
+  { id:'mlbb-id', name:'MLBB ID', logo:'MOBILE<br>LEGENDS', grad:'linear-gradient(135deg,#1b2a6b,#e8a12b 70%,#3b6fd8)', color:'#3b82f6',
+    server:'text', unit:'Diamonds', cover:'', icon:'', banner:'', items:mlbbItems },
+  { id:'genshin', name:'Genshin Impact', logo:'GENSHIN<br>IMPACT', grad:'linear-gradient(135deg,#7fc4e8,#2b5f8c 70%,#1a2c48)', color:'#8b5cf6',
+    server:'select', servers:['Asia','America','Europe','TW, HK, MO'], unit:'Genesis Crystals', cover:'', icon:'', banner:'',
+    items:[['60 Genesis Crystals',0.99,'crystal'],['300+30 Genesis Crystals',4.99,'crystal'],['980+110 Genesis Crystals',14.99,'crystal'],['1980+260 Genesis Crystals',29.99,'crystal'],['3280+600 Genesis Crystals',49.99,'crystal'],['6480+1600 Genesis Crystals',99.99,'crystal'],['Blessing of the Welkin Moon',4.99,'pass']] },
+  { id:'hok', name:'Honor Of Kings', logo:'HONOR<br>OF KINGS', grad:'linear-gradient(135deg,#d94a4a,#3b6fb0 70%,#1c2a45)', color:'#f59e0b',
+    server:null, unit:'Tokens', cover:'', icon:'', banner:'',
+    items:[['16 Tokens',0.25,'coin'],['80 Tokens',1.20,'coin'],['240 Tokens',3.60,'coin'],['400 Tokens',6.00,'coin'],['800 Tokens',12.00,'coin'],['1200 Tokens',18.00,'coin']] },
+  { id:'magicchess', name:'Magic Chess', logo:'MAGIC CHESS<br>GO GO', grad:'linear-gradient(135deg,#f0c9a0,#7a8db8 60%,#232a44)', color:'#3b82f6',
+    server:'text', unit:'Diamonds', cover:'', icon:'', banner:'',
+    items:[['86 Diamonds',1.20,'diamond'],['172 Diamonds',2.40,'diamond'],['257 Diamonds',3.55,'diamond'],['344 Diamonds',4.70,'diamond'],['706 Diamonds',9.40,'diamond'],['Weekly Pass',1.45,'pass']] }
+];
+
+/* ---------- Icons (inline SVG, no external font needed) ---------- */
+const I = {
+  heart: c => `<svg class="${c||''}" viewBox="0 0 24 24"><path d="M12 21s-8-4.9-9.7-10C1.2 7.5 3.5 4.5 6.7 4.5c2 0 3.7 1 5.3 3 1.6-2 3.3-3 5.3-3 3.2 0 5.5 3 4.4 6.5C20 16.1 12 21 12 21z" fill="currentColor"/></svg>`,
+  bolt: c => `<svg class="${c||''}" viewBox="0 0 24 24"><path d="M13.5 2 4.5 13.5h6L9.5 22l9-11.5h-6z" fill="currentColor"/></svg>`,
+  shield: c => `<svg class="${c||''}" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z" fill="currentColor"/><path d="M8.3 12.2l2.5 2.5 4.9-5.2" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  shieldQ: c => `<svg class="${c||''}" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z" fill="currentColor"/><path d="M10 9.5a2 2 0 1 1 3 1.7c-.7.4-1 .8-1 1.5M12 15.5v.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`,
+  back: c => `<svg class="${c||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>`,
+  chevL: c => I.back(c),
+  chevR: c => `<svg class="${c||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>`,
+  check: c => `<svg class="${c||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.500"/></svg>`,
+  gift: c => `<svg class="${c||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8"/><path d="M12 8v13"/><path d="M12 8H8.500a2.500 2.500 0 1 1 0-5C11 3 12 8 12 8z"/><path d="M12 8h3.500a2.500 2.500 0 1 0 0-5C13 3 12 8 12 8z"/></svg>`,
+  gamepad: c => `<svg class="${c||''}" viewBox="0 0 24 24"><path d="M6.5 6h11a4.5 4.5 0 0 1 4.4 3.6l.9 4.6a3 3 0 0 1-5.2 2.4L16 15H8l-1.6 1.6a3 3 0 0 1-5.2-2.4l.9-4.6A4.5 4.5 0 0 1 6.5 6z" fill="currentColor"/><rect x="6" y="9.3" width="4" height="1.4" rx=".5" fill="#fff"/><rect x="7.3" y="8" width="1.4" height="4" rx=".5" fill="#fff"/><circle cx="15.500" cy="9" r="1" fill="#fff"/><circle cx="18" cy="11.200" r="1" fill="#fff"/></svg>`,
+  trophy: c => `<svg class="${c||''}" viewBox="0 0 24 24"><path d="M7 3h10v5a5 5 0 0 1-10 0V3zM3.500 5H7v2.500A2.500 2.500 0 0 1 4.500 10h-1zM20.500 5H17v2.500a2.500 2.500 0 0 0 2.500 2.500h1zM11 13h2v3h3v2.500H8V16h3z" fill="currentColor"/></svg>`,
+  headset: c => `<svg class="${c||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4.500 14v-2a7.500 7.500 0 0 1 15 0v2"/><rect x="3" y="13" width="4" height="7" rx="2" fill="currentColor"/><rect x="17" y="13" width="4" height="7" rx="2" fill="currentColor"/><path d="M19 20c0 1.600-2 2-5 2"/></svg>`,
+  tag: (c,hole) => `<svg class="${c||''}" viewBox="0 0 24 24"><path d="M3 4a1 1 0 0 1 1-1h7.600a1 1 0 0 1 .7.3l9 9a1 1 0 0 1 0 1.400l-7.600 7.600a1 1 0 0 1-1.400 0l-9-9A1 1 0 0 1 3 11.600V4z" fill="currentColor"/><circle cx="8" cy="8" r="1.700" fill="${hole||'#2563EB'}"/></svg>`,
+  wallet: c => `<svg class="${c||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h12v4"/><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="16.500" cy="13.500" r="1.200" fill="currentColor"/></svg>`,
+  discord: c => `<svg class="${c||''}" viewBox="0 0 24 24"><path d="M19.300 5.400A17 17 0 0 0 15.100 4l-.5 1a15.500 15.500 0 0 0-5.200 0l-.5-1a17 17 0 0 0-4.200 1.400C2 9.500 1.300 13.500 1.600 17.400a17 17 0 0 0 5.100 2.600l1.100-1.800a11 11 0 0 1-1.700-.8l.4-.3a12.200 12.200 0 0 0 10.900 0l.4.300c-.5.300-1.100.6-1.700.8l1.100 1.800a17 17 0 0 0 5.100-2.600c.4-4.500-.7-8.500-2.700-12z" fill="currentColor"/><ellipse cx="8.900" cy="12.500" rx="1.700" ry="2" fill="#666361"/><ellipse cx="15.100" cy="12.500" rx="1.700" ry="2" fill="#666361"/></svg>`,
+  twitter: c => `<svg class="${c||''}" viewBox="0 0 24 24"><path d="M23 3a10.900 10.900 0 0 1-3.140 1.530 4.480 4.480 0 0 0-7.860 3v1A10.660 10.660 0 0 1 3 4s-4 9 5 13a11.640 11.640 0 0 1-7 2c9 5 20 0 20-11.500a4.500 4.500 0 0 0-.08-.83A7.720 7.720 0 0 0 23 3z" fill="currentColor"/></svg>`,
+  facebook: c => `<svg class="${c||''}" viewBox="0 0 24 24"><path d="M14 8V6.500c0-.7.300-1 1-1h2V2h-3c-3 0-4.500 1.800-4.500 4.500V8H7v3.500h2.500V22H14V11.500h2.700l.4-3.500H14z" fill="currentColor"/></svg>`,
+  youtube: c => `<svg class="${c||''}" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M6 5h12a4 4 0 0 1 4 4v6a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4zm4 4v6l5-3-5-3z" fill="currentColor"/></svg>`,
+  /* product icons */
+  prod: (kind, color) => {
+    if (kind === 'pass') return `<svg viewBox="0 0 40 40" class="w-full h-full"><rect x="4" y="8" width="32" height="24" rx="5" fill="${color}"/><path d="M4 16h32" stroke="#fff" stroke-opacity=".6" stroke-width="2"/><circle cx="20" cy="24" r="4" fill="#fff" fill-opacity=".9"/><path d="M20 21.500l1 2h2l-1.600 1.400.6 2-2-1.200-2 1.200.6-2L17 23.500h2z" fill="${color}"/></svg>`;
+    if (kind === 'coin') return `<svg viewBox="0 0 40 40" class="w-full h-full"><circle cx="20" cy="20" r="16" fill="#f5b731"/><circle cx="20" cy="20" r="12" fill="#ffd45e" stroke="#e29a0d" stroke-width="2"/><path d="M20 12v16M15 16.500c0-1.700 2-2.500 5-2.500s5 1 5 2.700c0 4-10 1.500-10 5.800 0 1.800 2 2.500 5 2.500s5-.8 5-2.500" fill="none" stroke="#b46f00" stroke-width="2" stroke-linecap="round"/></svg>`;
+    if (kind === 'crystal') return `<svg viewBox="0 0 40 40" class="w-full h-full"><path d="M20 3l6 13 11 4-11 4-6 13-6-13-11-4 11-4z" fill="#b8a4ff"/><path d="M20 3l6 13-6 4-6-4z" fill="#e2d9ff"/><path d="M20 20l6 4-6 13-6-13z" fill="#8a72f0"/></svg>`;
+    return `<svg viewBox="0 0 40 40" class="w-full h-full"><path d="M12 6h16l9 10-17 19L3 16z" fill="${color}"/><path d="M3 16h34M12 6l8 10 8-10M20 35L12 16M20 35l8-19" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.500" stroke-linejoin="round"/><path d="M12 6l8 10-8 0z" fill="#fff" fill-opacity=".35"/></svg>`;
+  }
+};
+
+/* ---------- Helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const money = n => '$' + n.toFixed(2);
+const gameById = id => GAMES.find(g => g.id === id);
+const app = $('#app'), overlay = $('#overlay');
+let slide = 0, slideTimer = null, skelTimer = null, toastTimer = null;
+const favs = new Set();
+let query = '';
+let cur = null;
+let form = { uid:'', sid:'', server:'', checked:false, loading:false, name:'', sel:-1, pay:'khqr', disc:0, couponMsg:'' };
+
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg; t.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.add('hidden'), 2300);
+}
+function imgTag(src, cls) {
+  return src ? `<img src="${src}" alt="" loading="lazy" onerror="this.remove()" class="${cls}" />` : '';
+}
+
+/* ---------- Static bits ---------- */
+$('#socials').innerHTML = ['discord','twitter','facebook','youtube'].map(k =>
+  `<span class="w-10 h-10 rounded-full border border-white/30 bg-white/[.07] flex items-center justify-center text-gray-200">${I[k]('w-[19px] h-[19px]')}</span>`).join('');
+$('#menuList').innerHTML =
+  `<a href="#/" data-act="closeMenu" class="rounded-xl px-3 py-2 bg-blue-50 text-brand">Home</a>` +
+  GAMES.map(g => `<a href="#/game/${g.id}" data-act="closeMenu" class="rounded-xl px-3 py-2 hover:bg-gray-100 truncate">${g.name}</a>`).join('');
+
+/* ---------- HOME ---------- */
+const slides = [
+  { cls:'banner-a', title:'បង្កើនពេលវេលា <span class="font-extrabold">ELLAST4RE.COM</span>', a:'អ្នកលក់ទុកចិត្តបាន ទូទាត់រហ័ស ១០០%', b:'សេវាកម្មពិសេស តម្លៃសមរម្យ' },
+  { cls:'banner-b', title:'TOP UP <span class="font-extrabold">INSTANTLY</span>', a:'Direct to your Player ID in seconds', b:'Pay with ABA KHQR' },
+  { cls:'banner-c', title:'BEST PRICES <span class="font-extrabold">EVERY DAY</span>', a:'Lowest rates for popular games', b:'24/7 customer support' }
+];
+function slideHTML(s) {
+  return `<div class="${s.cls} relative w-full shrink-0 h-full">
+    <div class="rays absolute inset-0"></div>
+    <div class="absolute inset-0 flex">
+      <div class="w-[64%] pl-11 pr-1 pt-3 sm:pl-20 sm:pt-6 flex flex-col">
+        <h2 class="text-brand font-bold text-[14px] sm:text-3xl leading-tight drop-shadow-[0_1px_0_#fff]">${s.title}</h2>
+        <div class="mt-2 space-y-1.5 text-[7px] sm:text-sm leading-snug">
+          <div class="bg-white/80 border border-blue-200 rounded-lg px-2 py-1 text-gray-700">${s.a}</div>
+          <div class="bg-white/80 border border-blue-200 rounded-lg px-2 py-1 text-gray-700">${s.b}</div>
+        </div>
+        <p class="mt-auto mb-2 text-[7px] sm:text-xs font-semibold text-gray-700">www.ellast4re.com</p>
+      </div>
+      <div class="relative flex-1">
+        <div class="absolute right-3 bottom-0 w-[70%] h-[88%] flex flex-col items-center justify-end">
+          <div class="w-12 h-12 sm:w-24 sm:h-24 rounded-full bg-[#eff6ff] border-[3px] border-[#bfdbfe] flex items-center justify-center">
+            <svg class="w-8 h-8 sm:w-14 sm:h-14 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.800" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M7.500 10q1-1.500 2 0M14.500 10q1-1.500 2 0"/><path d="M7.500 14.500q4.500 4.500 9 0z" fill="currentColor"/></svg>
+          </div>
+          <div class="w-20 h-12 sm:w-32 sm:h-20 bg-gradient-to-b from-[#93c5fd] to-[#3b82f6] rounded-t-3xl -mt-1"></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function gameCard(g) {
+  const fav = favs.has(g.id);
+  return `<div role="button" tabindex="0" data-act="go" data-id="${g.id}" class="cursor-pointer select-none bg-white rounded-2xl sm:rounded-3xl p-1.5 sm:p-3 card-shadow active:scale-[.98] transition-transform min-w-0">
+    <div class="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden" style="background:${g.grad}">
+      <div class="absolute inset-x-0 bottom-1.5 text-center text-[8px] sm:text-xs font-extrabold text-white leading-tight px-0.5">${g.logo}</div>
+      ${imgTag(g.cover, 'absolute inset-0 w-full h-full object-cover')}
+      ${g.flag ? `<span class="absolute top-1 left-1 w-5 h-5 sm:w-7 sm:h-7 rounded-md overflow-hidden shadow flex flex-col border border-white"><span class="flex-1 bg-[#032ea1]"></span><span class="flex-[2] bg-[#e00025] flex items-center justify-center"><span class="block w-1.5 h-[3px] bg-white"></span></span><span class="flex-1 bg-[#032ea1]"></span></span>` : ''}
+      <button data-act="fav" data-id="${g.id}" aria-label="Favorite" class="absolute top-1 right-1 w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-white shadow flex items-center justify-center ${fav ? 'text-brand' : 'text-gray-400'}">${I.heart('w-3 h-3 sm:w-4 sm:h-4')}</button>
+    </div>
+    <h4 class="mt-1.5 sm:mt-2 text-center font-bold text-[10px] sm:text-sm leading-tight text-ink truncate">${g.name}</h4>
+    <div class="mt-1.5 sm:mt-2 flex items-center justify-center gap-1 rounded-lg sm:rounded-xl bg-mint text-topup font-bold text-[9px] sm:text-sm tracking-wide py-1.5 sm:py-2.5">${I.bolt('w-2.5 h-2.5 sm:w-4 sm:h-4')} TOPUP</div>
+  </div>`;
+}
+function gridHTML() {
+  const list = GAMES.filter(g => g.name.toLowerCase().includes(query.toLowerCase()));
+  return list.length ? list.map(gameCard).join('') : `<p class="col-span-full text-center text-sm text-gray-500 py-8">No games found.</p>`;
+}
+const sectionHead = (icon, title, right) => `
+  <div class="flex items-center justify-between gap-2 px-1">
+    <h3 class="flex items-center gap-2 font-extrabold text-[15px] sm:text-[17px] tracking-wide text-ink">${icon}${title}</h3>
+    ${right ? `<div class="flex items-center gap-1.5 shrink-0">${right}</div>` : ''}
+  </div>`;
+const pill = t => `<span class="px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold tracking-wide text-gray-500 bg-white/70 border border-blue-200">${t}</span>`;
+
+function renderHome() {
+  overlay.innerHTML = '';
+  $('#footer').classList.remove('pb-24');
+  app.innerHTML = `
+  <section class="mt-2 relative rounded-3xl overflow-hidden aspect-[16/9] sm:aspect-[21/9] card-shadow">
+    <div id="track" class="flex h-full transition-transform duration-500 ease-out" style="transform:translateX(-${slide*100}%)">${slides.map(slideHTML).join('')}</div>
+    <button data-act="prev" aria-label="Previous" class="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-gray-600/70 text-white flex items-center justify-center">${I.chevL('w-5 h-5')}</button>
+    <button data-act="next" aria-label="Next" class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-gray-600/70 text-white flex items-center justify-center">${I.chevR('w-5 h-5')}</button>
+    <div id="dots" class="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1.5"></div>
+  </section>
+
+  <section class="mt-5">
+    ${sectionHead(I.gift('w-[22px] h-[22px] text-brand'), 'REWARDS', pill('0 ITEMS') + `<a href="#" class="px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold tracking-wide text-gray-500 bg-white/70 border border-blue-200">SEE ALL</a>`)}
+    <div class="mt-3 rounded-3xl border border-blue-200 bg-gradient-to-r from-white to-blue-50 px-4 py-6 flex items-center gap-4 card-shadow">
+      <div class="w-14 h-14 shrink-0 rounded-2xl bg-white border border-blue-200 shadow-sm flex items-center justify-center">${I.gift('w-8 h-8 text-brand')}</div>
+      <div><p class="font-bold text-[15px]">No rewards available</p><p class="text-[13px] text-gray-500 leading-snug">Rewards will appear here when they become available.</p></div>
+    </div>
+  </section>
+
+  <section class="mt-6">
+    ${sectionHead(I.gamepad('w-[22px] h-[22px] text-brand'), 'FEATURED GAMES', pill('10 GAMES') + `<a href="#" class="px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold tracking-wide text-gray-500 bg-white/70 border border-blue-200">SEE ALL</a>`)}
+    <div id="grid" class="mt-3 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">${gridHTML()}</div>
+  </section>
+
+  <section class="mt-8">
+    ${sectionHead(I.trophy('w-[22px] h-[22px] text-brand'), 'WHY CHOOSE US?')}
+    <div class="mt-3 grid grid-cols-2 lg:grid-cols-4 gap-3">
+      ${[['bolt','Instant Delivery','Direct to Player ID immediately.'],['shield','Secure Payment','100% safe &amp; protected.'],['headset','24/7 Support','Always here to help you.'],['tag','Best Prices','Lowest rates for games.']].map(([k,t,d]) => `
+      <div class="rounded-2xl bg-[#f1f1f2] p-4 card-shadow">
+        <span class="w-10 h-10 rounded-full bg-brand text-white flex items-center justify-center">${k==='shield' ? I.shieldCheckCircle() : k==='tag' ? I.tag('w-5 h-5','#2563EB') : I[k]('w-5 h-5')}</span>
+        <p class="mt-3 font-bold text-[15px]">${t}</p><p class="text-[11px] text-gray-500 mt-1">${d}</p>
+      </div>`).join('')}
+    </div>
+  </section>
+
+  <section class="mt-8 mb-6">
+    <h3 class="font-extrabold text-[15px] sm:text-[17px] tracking-wide text-ink px-1">NEWS &amp; PROMOTIONS</h3>
+    <p class="mt-2 px-1 text-[16px] text-gray-400">No promotions available.</p>
+  </section>`;
+  paintDots();
+  startAuto();
+}
+/* shield-with-check drawn white on the blue circle */
+I.shieldCheckCircle = () => `<svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z" fill="#fff"/><path d="M8.3 12.2l2.5 2.5 4.9-5.2" fill="none" stroke="#2563EB" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/* carousel */
+function paintDots() {
+  const d = $('#dots'); if (!d) return;
+  d.innerHTML = slides.map((_, i) => `<button data-act="dot" data-i="${i}" aria-label="Slide ${i+1}" class="h-1 rounded-full transition-all ${i===slide ? 'w-9 bg-orange-400' : 'w-2 bg-white/80'}"></button>`).join('');
+}
+function goSlide(i) {
+  slide = (i + slides.length) % slides.length;
+  const t = $('#track'); if (t) t.style.transform = `translateX(-${slide*100}%)`;
+  paintDots();
+}
+function startAuto() { stopAuto(); slideTimer = setInterval(() => goSlide(slide + 1), 5000); }
+function stopAuto() { clearInterval(slideTimer); }
+
+/* ---------- SKELETON (600ms) ---------- */
+function renderSkeleton() {
+  stopAuto();
+  overlay.innerHTML = `
+  <div class="fixed inset-x-0 bottom-0 z-40 bg-white border-t border-gray-100 pb-safe animate-pulse">
+    <div class="max-w-6xl mx-auto px-3 py-3 flex items-center justify-between gap-3">
+      <div class="space-y-2 flex-1"><div class="h-4 w-28 bg-gray-200 rounded"></div><div class="h-3 w-40 bg-gray-200 rounded"></div></div>
+      <div class="h-11 w-32 bg-gray-200 rounded-full"></div>
+    </div>
+  </div>`;
+  $('#footer').classList.add('pb-24');
+  app.innerHTML = `
+  <div class="animate-pulse mt-2 space-y-4">
+    <div class="h-4 w-20 bg-gray-200 rounded mt-3"></div>
+    <div class="h-44 sm:h-56 bg-gray-200 rounded-3xl"></div>
+    <div class="bg-white rounded-3xl p-4 space-y-3 card-shadow">
+      <div class="h-4 w-48 bg-gray-200 rounded"></div>
+      <div class="h-11 bg-gray-200 rounded-xl"></div>
+      <div class="h-11 bg-gray-200 rounded-xl"></div>
+      <div class="h-9 bg-gray-200 rounded-xl"></div>
+    </div>
+    <div class="bg-white rounded-3xl p-4 card-shadow">
+      <div class="h-4 w-40 bg-gray-200 rounded mb-3"></div>
+      <div class="grid grid-cols-2 gap-3">${Array.from({length:6}).map(() => `<div class="h-16 bg-gray-200 rounded-2xl"></div>`).join('')}</div>
+    </div>
+    <div class="bg-white rounded-3xl p-4 space-y-3 card-shadow">
+      <div class="h-4 w-36 bg-gray-200 rounded"></div><div class="h-14 bg-gray-200 rounded-2xl"></div><div class="h-14 bg-gray-200 rounded-2xl"></div>
+    </div>
+  </div>`;
+  window.scrollTo({ top: 0 });
+}
+
+/* ---------- TOP-UP PAGE ---------- */
+const subtotal = () => (cur && form.sel >= 0) ? cur.items[form.sel][1] : 0;
+const total = () => subtotal() * (1 - form.disc);
+
+function renderTopup() {
+  const g = cur;
+  const secNum = n => `<span class="w-6 h-6 rounded-full bg-brand text-white text-xs font-extrabold flex items-center justify-center shrink-0">${n}</span>`;
+  const idPH = 'Enter Game ID', svPH = 'Server / Zone ID';
+  app.innerHTML = `
+  <div class="pt-3">
+    <button data-act="home" class="inline-flex items-center gap-1 text-[13px] font-bold text-gray-600 bg-white rounded-full pl-2 pr-3.5 py-1.5 card-shadow">${I.back('w-4 h-4')} Back</button>
+  </div>
+
+  <section class="mt-3 rounded-3xl overflow-hidden card-shadow bg-white">
+    <div class="relative h-36 sm:h-52" style="background:${g.grad}">
+      ${imgTag(g.banner, 'absolute inset-0 w-full h-full object-cover')}
+      <div class="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent"></div>
+      <div class="absolute right-4 top-3 text-white/90 text-right text-[11px] sm:text-sm font-extrabold leading-tight tracking-wide">${g.logo}</div>
+    </div>
+    <div class="mt-3 px-4 pb-4 flex items-center gap-3">
+      <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border border-gray-100 shadow-md overflow-hidden shrink-0 relative" style="background:${g.grad}">
+        ${imgTag(g.icon || g.cover, 'absolute inset-0 w-full h-full object-cover')}
+        <div class="absolute inset-0 flex items-center justify-center text-center text-white text-[8px] font-extrabold leading-tight px-1">${g.logo}</div>
+      </div>
+      <div class="min-w-0 flex-1">
+        <h1 class="font-extrabold text-xl sm:text-2xl leading-tight text-ink break-words">${g.name}</h1>
+        <div class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold text-gray-500">
+          <span class="inline-flex items-center gap-1">${I.shield('w-3.5 h-3.5 text-emerald-500')} Safety guarantees</span>
+          <span class="text-gray-300">&bull;</span>
+          <span class="inline-flex items-center gap-1">${I.bolt('w-3.5 h-3.5 text-amber-500')} Instant delivery</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="mt-4 grid lg:grid-cols-5 gap-4 items-start">
+    <div class="lg:col-span-3 space-y-4">
+      <!-- 1 -->
+      <section class="bg-white rounded-3xl p-4 card-shadow">
+        <h2 class="flex items-center gap-2 font-extrabold text-[13px] sm:text-sm tracking-wide">${secNum(1)} ENTER YOUR INFORMATION</h2>
+        <div class="mt-3 space-y-2.5">
+          <input id="uid" inputmode="numeric" autocomplete="off" value="${form.uid}" placeholder="${idPH}" class="w-full rounded-xl border border-gray-200 bg-[#f7f7fa] px-4 py-3 text-sm outline-none focus:border-brand focus:bg-white" />
+          ${g.server === 'text' ? `<input id="sid" inputmode="numeric" autocomplete="off" value="${form.sid}" placeholder="${svPH}" class="w-full rounded-xl border border-gray-200 bg-[#f7f7fa] px-4 py-3 text-sm outline-none focus:border-brand focus:bg-white" />` : ''}
+          ${g.server === 'select' ? `<select id="srv" class="w-full rounded-xl border border-gray-200 bg-[#f7f7fa] px-4 py-3 text-sm outline-none focus:border-brand">${g.servers.map(s => `<option ${form.server===s?'selected':''}>${s}</option>`).join('')}</select>` : ''}
+        </div>
+        <div id="status" class="mt-3"></div>
+      </section>
+
+      <!-- 2 -->
+      <section class="bg-white rounded-3xl p-4 card-shadow">
+        <h2 class="flex items-center gap-2 font-extrabold text-[13px] sm:text-sm tracking-wide">${secNum(2)} CHOOSE PRODUCT</h2>
+        <div id="products" class="mt-3 grid grid-cols-2 gap-2.5"></div>
+      </section>
+    </div>
+
+    <div class="lg:col-span-2 space-y-4">
+      <!-- 3 -->
+      <section class="bg-white rounded-3xl p-4 card-shadow">
+        <h2 class="flex items-center gap-2 font-extrabold text-[13px] sm:text-sm tracking-wide">${secNum(3)} PAYMENT METHOD</h2>
+        <div id="pays" class="mt-3 space-y-2.5"></div>
+        <div class="mt-4">
+          <label class="text-[12px] font-bold text-gray-600">Coupon code</label>
+          <div class="mt-1.5 flex gap-2">
+            <input id="coupon" placeholder="Enter coupon code" class="flex-1 min-w-0 rounded-xl border border-gray-200 bg-[#f7f7fa] px-4 py-2.5 text-sm outline-none focus:border-brand focus:bg-white uppercase placeholder:normal-case" />
+            <button data-act="apply" class="shrink-0 rounded-xl bg-ink text-white text-[13px] font-bold px-4">Apply</button>
+          </div>
+          <p id="couponMsg" class="mt-1.5 text-[11px] min-h-[14px]"></p>
+        </div>
+        <p class="mt-3 text-[11px] text-gray-500 leading-snug">By clicking Pay Now, you agree to our <span class="text-brand font-semibold">Terms and Conditions</span>.</p>
+      </section>
+    </div>
+  </div>`;
+
+  overlay.innerHTML = `
+  <!-- Mascot chat -->
+  <div class="fixed right-3 bottom-24 z-40 flex items-end gap-2 pointer-events-none">
+    <div id="tip" class="pointer-events-auto pop relative mb-3 max-w-[170px] bg-white rounded-2xl rounded-br-sm px-3 py-2 text-[11px] font-semibold text-ink shadow-lg border border-blue-100">
+      Need help? Enter your Game ID.
+      <button data-act="closeTip" aria-label="Close" class="absolute -top-2 -left-2 w-5 h-5 rounded-full bg-gray-200 text-gray-600 text-[11px] leading-none flex items-center justify-center">&times;</button>
+    </div>
+    <button data-act="chat" aria-label="Support" class="pointer-events-auto w-14 h-14 rounded-full bg-white shadow-xl border-2 border-blue-200 flex items-center justify-center">
+      <svg viewBox="0 0 48 48" class="w-11 h-11">
+        <path d="M9 22 L11 6 L21 13 Z" fill="#93c5fd"/><path d="M39 22 L37 6 L27 13 Z" fill="#93c5fd"/>
+        <circle cx="24" cy="26" r="16" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/>
+        <path d="M8 26a16 16 0 0 1 32 0" fill="none" stroke="#2563EB" stroke-width="3"/>
+        <rect x="4.500" y="24" width="5" height="9" rx="2.500" fill="#2563EB"/><rect x="38.500" y="24" width="5" height="9" rx="2.500" fill="#2563EB"/>
+        <circle cx="18" cy="27" r="2" fill="#3b2f2f"/><circle cx="30" cy="27" r="2" fill="#3b2f2f"/>
+        <path d="M21 32q3 3 6 0" fill="none" stroke="#3b2f2f" stroke-width="1.800" stroke-linecap="round"/>
+        <circle cx="14.500" cy="31" r="2" fill="#bfdbfe"/><circle cx="33.500" cy="31" r="2" fill="#bfdbfe"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Sticky pay bar -->
+  <div class="fixed inset-x-0 bottom-0 z-40 bg-white border-t border-gray-100 shadow-[0_-8px_24px_rgba(60,40,120,.10)] pb-safe">
+    <div class="max-w-6xl mx-auto px-3 sm:px-5 py-3 flex items-center justify-between gap-3">
+      <div class="min-w-0">
+        <p class="text-[15px] sm:text-base font-extrabold text-ink">Total: <span id="barTotal" class="text-brand">$0.00</span></p>
+        <p class="text-[11px] sm:text-xs text-gray-500 truncate">Product: <span id="barProd">-</span></p>
+      </div>
+      <button data-act="paynow" class="shrink-0 login-btn rounded-full text-white font-extrabold text-[14px] sm:text-[15px] px-7 sm:px-10 py-3">Pay Now</button>
+    </div>
+  </div>`;
+  $('#footer').classList.add('pb-24');
+
+  paintStatus(); paintProducts(); paintPays(); paintBar();
+  window.scrollTo({ top: 0 });
+}
+
+const PLAYER_NAMES = ['ShadowNinja_99','PRO_Gamer_KH','DragonSlayer_X','NightWolf_07','KhmerKing_88','StormRider_23','PhantomAce','SkyHunter_KH'];
+let checkTimer = null;
+function nameFor(id) { let h = 0; for (const c of id) h = (h * 31 + Number(c)) % 997; return PLAYER_NAMES[h % PLAYER_NAMES.length]; }
+function resetCheck() { clearTimeout(checkTimer); form.loading = false; form.checked = false; form.name = ''; paintStatus(); }
+function runCheck() {
+  const okId = /^\d{5,}$/.test(form.uid.trim());
+  const okSv = cur.server !== 'text' || /^\d{2,}$/.test(form.sid.trim());
+  if (!form.uid.trim()) { toast('Please enter your Game ID'); return; }
+  if (!okId) { toast('Enter a valid Game ID (digits only, 5+)'); return; }
+  if (!okSv) { toast('Enter a valid Server ID'); return; }
+  clearTimeout(checkTimer);
+  form.loading = true; form.checked = false; form.name = ''; paintStatus();
+  checkTimer = setTimeout(() => {
+    form.loading = false; form.checked = true; form.name = nameFor(form.uid.trim()); paintStatus();
+  }, 1000);
+}
+function paintStatus() {
+  const s = $('#status'); if (!s) return;
+  if (form.loading) {
+    s.innerHTML = `<div class="flex items-center gap-2.5 rounded-xl bg-blue-50 border border-blue-200 px-3 py-2.5">
+      <svg class="w-4 h-4 animate-spin text-brand shrink-0" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".25" stroke-width="3.5"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>
+      <span class="text-[12px] font-bold text-brand">Checking Player ID...</span></div>`;
+  } else if (form.checked) {
+    s.innerHTML = `<div class="flex items-center justify-between gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2.5">
+      <span class="flex items-center gap-2 min-w-0 text-[12px] font-bold text-emerald-700">${I.shield('w-4 h-4 shrink-0')}<span class="truncate">PLAYER: Verified (${form.name})</span></span>
+      <button data-act="check" class="shrink-0 text-[12px] font-bold text-emerald-700 underline">Re-check</button></div>`;
+  } else {
+    s.innerHTML = `<div class="flex items-center justify-between gap-2 rounded-xl bg-[#f3f3f6] border border-gray-200 px-3 py-2.5">
+      <span class="flex items-center gap-2 text-[12px] font-bold text-gray-500">${I.shieldQ('w-4 h-4 text-gray-400')} PLAYER: Not checked</span>
+      <button data-act="check" class="rounded-lg bg-brand text-white text-[12px] font-bold px-3 py-1.5">Check ID</button></div>`;
+  }
+}
+function paintProducts() {
+  const box = $('#products'); if (!box) return;
+  box.innerHTML = cur.items.map(([t, p, kind, img], i) => {
+    const on = i === form.sel;
+    return `<button data-act="item" data-i="${i}" class="relative text-left rounded-2xl p-2.5 flex items-center gap-2.5 min-w-0 transition ${on ? 'border-2 border-brand bg-blue-50 shadow-md' : 'border-2 border-gray-100 bg-white'}">
+      <span class="w-10 h-10 shrink-0">${img ? `<img src="${img}" alt="" class="w-full h-full object-contain" onerror="this.remove()">` : I.prod(kind, cur.color)}</span>
+      <span class="min-w-0"><span class="block text-[11.5px] sm:text-[13px] font-bold leading-tight text-ink">${t}</span>
+      <span class="block mt-0.5 text-[13px] sm:text-[15px] font-extrabold text-[#2563EB]">${money(p)}</span></span>
+      ${on ? `<span class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-brand text-white flex items-center justify-center">${I.check('w-3 h-3')}</span>` : ''}
+    </button>`;
+  }).join('');
+}
+function paintPays() {
+  const box = $('#pays'); if (!box) return;
+  const opt = (id, logo, title, sub) => {
+    const on = form.pay === id;
+    return `<button data-act="pay" data-m="${id}" class="w-full text-left rounded-2xl p-3 flex items-center gap-3 border-2 transition ${on ? 'border-brand bg-blue-50' : 'border-gray-100 bg-white'}">
+      <span class="shrink-0">${logo}</span>
+      <span class="flex-1 min-w-0"><span class="block text-[13px] font-bold">${title}</span><span class="block text-[11px] text-gray-500">${sub}</span></span>
+      <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center ${on ? 'border-brand' : 'border-gray-300'}">${on ? '<span class="w-2.5 h-2.5 rounded-full bg-brand"></span>' : ''}</span>
+    </button>`;
+  };
+  box.innerHTML =
+    opt('khqr', `<span class="flex items-center gap-1"><span class="bg-[#005e7b] text-white font-extrabold text-[11px] px-2 py-1 rounded-sm">ABA</span><span class="bg-[#e21a2c] text-white font-extrabold text-[10px] px-1.5 py-1 rounded-sm">KHQR</span></span>`, 'ABA KHQR', 'Scan with any Bakong-supported app') +
+    opt('wallet', `<span class="w-10 h-10 rounded-xl bg-blue-50 text-brand flex items-center justify-center">${I.wallet('w-5 h-5')}</span>`, 'Wallet balance', 'Balance: $0.00');
+}
+function paintBar() {
+  const t = $('#barTotal'), p = $('#barProd'); if (!t) return;
+  t.textContent = money(total());
+  p.textContent = form.sel >= 0 ? cur.items[form.sel][0] + (form.disc ? ` (-${Math.round(form.disc*100)}%)` : '') : '-';
+}
+
+/* ---------- Routing ---------- */
+function route() {
+  clearTimeout(skelTimer);
+  const m = location.hash.match(/^#\/game\/([\w-]+)/);
+  if (m && gameById(m[1])) {
+    cur = gameById(m[1]);
+    clearTimeout(checkTimer);
+    form = { uid:'', sid:'', server: cur.servers ? cur.servers[0] : '', checked:false, loading:false, name:'', sel:-1, pay:'khqr', disc:0, couponMsg:'' };
+    renderSkeleton();
+    skelTimer = setTimeout(renderTopup, 600);
+  } else {
+    cur = null;
+    renderHome();
+    window.scrollTo({ top: 0 });
+  }
+}
+window.addEventListener('hashchange', route);
+
+/* ---------- Events ---------- */
+function closePanels() { $('#menuPanel').classList.add('hidden'); $('#searchPanel').classList.add('hidden'); }
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const a = el.dataset.act;
+  switch (a) {
+    case 'go': location.hash = '#/game/' + el.dataset.id; break;
+    case 'home': location.hash = '#/'; break;
+    case 'fav': {
+      e.stopPropagation();
+      const id = el.dataset.id;
+      favs.has(id) ? favs.delete(id) : favs.add(id);
+      el.classList.toggle('text-brand'); el.classList.toggle('text-gray-400');
+      break;
+    }
+    case 'menu': { const p = $('#menuPanel'); $('#searchPanel').classList.add('hidden'); p.classList.toggle('hidden'); break; }
+    case 'closeMenu': closePanels(); break;
+    case 'search': {
+      const p = $('#searchPanel'); $('#menuPanel').classList.add('hidden'); p.classList.toggle('hidden');
+      if (!p.classList.contains('hidden')) {
+        if (cur) location.hash = '#/';
+        setTimeout(() => $('#searchInput').focus(), 50);
+      }
+      break;
+    }
+    case 'login': e.preventDefault(); toast('Login is not connected in this demo'); break;
+    case 'prev': goSlide(slide - 1); startAuto(); break;
+    case 'next': goSlide(slide + 1); startAuto(); break;
+    case 'dot': goSlide(+el.dataset.i); startAuto(); break;
+    case 'subscribe': {
+      const v = $('#subEmail').value.trim();
+      if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { toast('Subscribed. Thank you!'); $('#subEmail').value = ''; }
+      else toast('Please enter a valid email');
+      break;
+    }
+    case 'item': form.sel = +el.dataset.i; paintProducts(); paintBar(); break;
+    case 'pay': form.pay = el.dataset.m; paintPays(); break;
+    case 'check': runCheck(); break;
+    case 'apply': {
+      const code = $('#coupon').value.trim().toUpperCase(), msg = $('#couponMsg');
+      if (code === 'ELLA10') { form.disc = 0.10; msg.textContent = 'Coupon applied: 10% off'; msg.className = 'mt-1.5 text-[11px] min-h-[14px] text-emerald-600 font-semibold'; }
+      else { form.disc = 0; msg.textContent = code ? 'Invalid coupon code' : 'Enter a coupon code'; msg.className = 'mt-1.5 text-[11px] min-h-[14px] text-red-500 font-semibold'; }
+      paintBar();
+      break;
+    }
+    case 'paynow': {
+      if (!form.uid.trim()) { toast('Please enter your Game ID'); $('#uid').focus(); break; }
+      if (form.loading) { toast('Please wait, checking Player ID...'); break; }
+      if (!form.checked) { toast('Please check your player ID first'); break; }
+      if (form.sel < 0) { toast('Please choose a product'); break; }
+      toast(`Order ready: ${cur.items[form.sel][0]} - ${money(total())}. Payment gateway not connected in this demo.`);
+      break;
+    }
+    case 'chat': { const t = $('#tip'); if (t) { t.classList.remove('hidden'); t.classList.add('pop'); } const u = $('#uid'); if (u) { u.scrollIntoView({ behavior:'smooth', block:'center' }); u.focus(); } break; }
+    case 'closeTip': $('#tip').classList.add('hidden'); break;
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.matches('[role="button"][data-act="go"]')) e.target.click();
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'uid') { form.uid = t.value.replace(/\D/g, ''); t.value = form.uid; resetCheck(); }
+  else if (t.id === 'sid') { form.sid = t.value.replace(/\D/g, ''); t.value = form.sid; resetCheck(); }
+  else if (t.id === 'srv') { form.server = t.value; resetCheck(); }
+  else if (t.id === 'searchInput') { query = t.value; const g = $('#grid'); if (g) g.innerHTML = gridHTML(); }
+});
+
+route();
+</script>
+</body>
+</html>

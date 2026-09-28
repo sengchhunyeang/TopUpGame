@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% from "components/ui.html" import empty_state %}
+
+{% block title %}Not found - ELLASTORE{% endblock %}
+
+{% block content %}
+<div class="py-16 max-w-md mx-auto">
+  {{ empty_state("gamepad", "Page not found", "The game or page you are looking for doesn't exist.") }}
+  <p class="mt-6 text-center"><a href="{{ url_for('pages.home') }}" class="login-btn inline-block rounded-full text-white font-extrabold text-sm px-6 py-2.5">Back to home</a></p>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{#- Small, generic UI building blocks. -#}
+{% from "components/icons.html" import icon %}
+
+{#- Rounded outline chip; renders a link when `href` is given. -#}
+{% macro pill(text, href=None) -%}
+{%- set cls = "px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold tracking-wide text-gray-500 bg-white/70 border border-blue-200" -%}
+{%- if href %}<a href="{{ href }}" class="{{ cls }}">{{ text }}</a>{% else %}<span class="{{ cls }}">{{ text }}</span>{% endif -%}
+{%- endmacro %}
+
+{#- Section title with optional icon; call-block content is rendered on the right. -#}
+{% macro section_head(title, icon_name=None) -%}
+<div class="flex items-center justify-between gap-2 px-1">
+  <h3 class="flex items-center gap-2 font-extrabold text-[15px] sm:text-[17px] tracking-wide text-ink">
+    {%- if icon_name %}{{ icon(icon_name, "w-[22px] h-[22px] text-brand") }}{% endif %}{{ title }}</h3>
+  {%- if caller %}<div class="flex items-center gap-1.5 shrink-0">{{ caller() }}</div>{% endif %}
+</div>
+{%- endmacro %}
+
+{#- White rounded panel. -#}
+{% macro card(cls="") -%}
+<section class="bg-white rounded-3xl p-4 card-shadow {{ cls }}">{{ caller() }}</section>
+{%- endmacro %}
+
+{#- Numbered step heading used on the top-up form. -#}
+{% macro step_heading(n, title) -%}
+<h2 class="flex items-center gap-2 font-extrabold text-[13px] sm:text-sm tracking-wide">
+  <span class="w-6 h-6 rounded-full bg-brand text-white text-xs font-extrabold flex items-center justify-center shrink-0">{{ n }}</span>
+  {{ title }}
+</h2>
+{%- endmacro %}
+
+{#- Icon + title + text placeholder when a list is empty. -#}
+{% macro empty_state(icon_name, title, text) -%}
+<div class="rounded-3xl border border-blue-200 bg-gradient-to-r from-white to-blue-50 px-4 py-6 flex items-center gap-4 card-shadow">
+  <div class="w-14 h-14 shrink-0 rounded-2xl bg-white border border-blue-200 shadow-sm flex items-center justify-center">{{ icon(icon_name, "w-8 h-8 text-brand") }}</div>
+  <div><p class="font-bold text-[15px]">{{ title }}</p><p class="text-[13px] text-gray-500 leading-snug">{{ text }}</p></div>
+</div>
+{%- endmacro %}
+
+{#- Text input with the store's field styling. -#}
+{% macro text_input(id, placeholder, numeric=False, cls="") -%}
+<input id="{{ id }}" name="{{ id }}" {% if numeric %}inputmode="numeric" {% endif %}autocomplete="off" placeholder="{{ placeholder }}"
+  class="w-full rounded-xl border border-gray-200 bg-[#f7f7fa] px-4 py-3 text-sm outline-none focus:border-brand focus:bg-white {{ cls }}" />
+{%- endmacro %}
+
+{#- ABA / KHQR payment badges. size: "sm" | "md" -#}
+{% macro payment_badges(size="md") -%}
+{%- if size == "sm" -%}
+<span class="flex items-center gap-1"><span class="bg-[#005e7b] text-white font-extrabold text-[11px] px-2 py-1 rounded-sm">ABA</span><span class="bg-[#e21a2c] text-white font-extrabold text-[10px] px-1.5 py-1 rounded-sm">KHQR</span></span>
+{%- else -%}
+<span class="bg-[#005e7b] text-white font-extrabold text-sm tracking-wider px-3 py-1.5 rounded-sm">ABA</span>
+<span class="bg-[#e21a2c] text-white font-extrabold text-[12px] tracking-wider px-2.5 py-1.5 rounded-sm">KHQR</span>
+{%- endif -%}
+{%- endmacro %}
+
+{#- Cambodian flag badge. -#}
+{% macro khmer_flag(cls="") -%}
+<span class="{{ cls }} rounded-md overflow-hidden shadow flex flex-col border border-white" aria-label="Cambodia">
+  <span class="flex-1 bg-[#032ea1]"></span><span class="flex-[2] bg-[#e00025] flex items-center justify-center"><span class="block w-1.5 h-[3px] bg-white"></span></span><span class="flex-1 bg-[#032ea1]"></span>
+</span>
+{%- endmacro %}
+
+{#- Multi-line game logo text. -#}
+{% macro game_logo(game) -%}{% for line in game.logo %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}{%- endmacro %}
+
+{#- Game artwork, bottom to top: gradient, fallback logo text (when logo_cls given),
+    optional image, then any call-block overlays.  kind: cover | icon | banner -#}
+{% macro game_art(game, kind="cover", cls="", logo_cls=None) -%}
+{%- set src = game[kind] or (game.cover if kind == "icon" else "") -%}
+<div class="relative overflow-hidden {{ cls }}" style="background:{{ game.grad }}">
+  {%- if logo_cls %}<div class="absolute {{ logo_cls }} text-white font-extrabold leading-tight">{{ game_logo(game) }}</div>{% endif %}
+  {%- if src %}<img src="{{ src }}" alt="" loading="lazy" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover" />{% endif %}
+  {%- if caller %}{{ caller() }}{% endif %}
+</div>
+{%- endmacro %}
